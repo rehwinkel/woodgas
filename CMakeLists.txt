@@ -6,6 +6,7 @@ add_library(lua STATIC lua/lapi.c lua/lcode.c lua/lctype.c lua/ldebug.c lua/ldo.
 
 include_directories(glfw/include)
 include_directories(lua/)
+include_directories(stb/)
 
 add_executable(woodgas_test src/woodgas_test.cc src/glad/glad.c)
 target_link_libraries(woodgas_test glfw lua)

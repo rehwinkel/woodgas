@@ -2,6 +2,8 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <lua.hpp>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 int main(int argc, char const *argv[])
 {
@@ -26,6 +28,7 @@ int main(int argc, char const *argv[])
         glfwSwapBuffers(window);
     }
     lua_close(nullptr);
+    stbi_load("test", nullptr, nullptr, nullptr, 4);
     std::cout << "hey" << std::endl;
     return 0;
 }

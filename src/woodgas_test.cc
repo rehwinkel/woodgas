@@ -4,6 +4,7 @@
 #include <lua.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <zlib.h>
 
 int main(int argc, char const *argv[])
 {
@@ -27,7 +28,9 @@ int main(int argc, char const *argv[])
 
         glfwSwapBuffers(window);
     }
+
     lua_close(nullptr);
+    compress(nullptr, nullptr, nullptr, 0);
     stbi_load("test", nullptr, nullptr, nullptr, 4);
     std::cout << "hey" << std::endl;
     return 0;

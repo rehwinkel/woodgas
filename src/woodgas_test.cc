@@ -6,6 +6,7 @@
 #include <stb_image.h>
 #include <zlib.h>
 #include <AL/al.h>
+#include <AudioFile.h>
 
 int main(int argc, char const *argv[])
 {
@@ -35,6 +36,7 @@ int main(int argc, char const *argv[])
     stbi_load("test", nullptr, nullptr, nullptr, 4);
     ALuint buf;
     alGenBuffers(1, &buf);
+    AudioFile<double> audiofile;
     std::cout << "hey" << std::endl;
     return 0;
 }

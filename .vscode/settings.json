@@ -1,7 +1,10 @@
 {
     "C_Cpp.default.includePath": [
         "stb",
+        "lua",
         "zlib",
-        "openal-soft/include"
+        "glfw/include",
+        "openal-soft/include",
+        "AudioFile",
     ]
 }

@@ -10,6 +10,7 @@ include_directories(glfw/include)
 include_directories(lua/)
 include_directories(stb/)
 include_directories(zlib/)
+include_directories(AudioFile/)
 include_directories(openal-soft/include/)
 
 add_executable(woodgas_test src/woodgas_test.cc src/glad/glad.c)

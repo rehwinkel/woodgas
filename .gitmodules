@@ -1,3 +1,6 @@
 [submodule "glfw"]
 	path = glfw
 	url = git@github.com:glfw/glfw.git
+[submodule "lua"]
+	path = lua
+	url = https://github.com/lua/lua

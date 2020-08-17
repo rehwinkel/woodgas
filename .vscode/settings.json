@@ -1,6 +1,7 @@
 {
     "C_Cpp.default.includePath": [
         "stb",
-        "zlib"
+        "zlib",
+        "openal-soft/include"
     ]
 }

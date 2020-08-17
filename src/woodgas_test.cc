@@ -5,6 +5,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <zlib.h>
+#include <AL/al.h>
 
 int main(int argc, char const *argv[])
 {
@@ -32,6 +33,8 @@ int main(int argc, char const *argv[])
     lua_close(nullptr);
     compress(nullptr, nullptr, nullptr, 0);
     stbi_load("test", nullptr, nullptr, nullptr, 4);
+    ALuint buf;
+    alGenBuffers(1, &buf);
     std::cout << "hey" << std::endl;
     return 0;
 }

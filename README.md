@@ -10,3 +10,5 @@ At it's core, woodgas is an ECS (entity-component-system) engine. Entities are o
 * [ ] Write Sound API (2D spatial sound, support for looping sounds and oneshot sounds).
 * [ ] Write Input API (Support for mouse, keyboard & maybe controllers). (Control in form of declaratively defined axis and triggers)
 * [ ] Write lua integration (access to the 3 APIs, declarative API for creating entities with components).
+* [ ] Write Asset management API (loading assets of any kind, using assets and uploading them to renderer, {custom asset types?}).
+* [ ] Write bundler that assembles single executable from assets and code. (using compression, insert asset package into binary)

@@ -1,6 +1,7 @@
 #include <iostream>
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
+#include <lua.hpp>
 
 int main(int argc, char const *argv[])
 {
@@ -24,6 +25,7 @@ int main(int argc, char const *argv[])
 
         glfwSwapBuffers(window);
     }
+    lua_close(nullptr);
     std::cout << "hey" << std::endl;
     return 0;
 }

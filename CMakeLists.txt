@@ -11,7 +11,6 @@ include_directories(glfw/include)
 include_directories(lua/)
 include_directories(stb/)
 include_directories(zlib/)
-include_directories(AudioFile/)
 include_directories(openal-soft/include/)
 
 add_library(woodgas STATIC src/render/glad/glad.c src/render/render.cc src/input/input.cc)

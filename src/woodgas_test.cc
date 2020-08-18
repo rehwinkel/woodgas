@@ -20,6 +20,7 @@ int main(int argc, char const *argv[])
         window.poll_inputs();
 
         renderer.clear();
+        renderer.draw_quad();
 
         window.swap_buffers();
     }

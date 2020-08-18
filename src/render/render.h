@@ -34,9 +34,24 @@ namespace render
         void cleanup();
     };
 
+    class Shader
+    {
+        GLuint program;
+        GLuint vertex_shader;
+        GLuint fragment_shader;
+        void check_for_error(GLuint shader);
+
+    public:
+        Shader();
+        Shader(const char *vertex_shader_source, const char *fragment_shader_source);
+        void start();
+        void stop();
+    };
+
     class Renderer
     {
         Mesh quad;
+        Shader quad_shader;
 
     public:
         Renderer(Window &window);

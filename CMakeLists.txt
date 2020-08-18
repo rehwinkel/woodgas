@@ -14,5 +14,8 @@ include_directories(zlib/)
 include_directories(AudioFile/)
 include_directories(openal-soft/include/)
 
-add_executable(woodgas_test src/woodgas_test.cc src/glad/glad.c)
-target_link_libraries(woodgas_test glfw lua zlibstatic OpenAL)
+add_library(woodgas STATIC src/render/glad/glad.c src/render/render.cc src/input/input.cc)
+target_link_libraries(woodgas glfw lua zlibstatic OpenAL)
+
+add_executable(woodgas_test src/woodgas_test.cc)
+target_link_libraries(woodgas_test woodgas)

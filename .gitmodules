@@ -3,4 +3,4 @@
 	url = https://github.com/nothings/stb.git
 [submodule "openal-soft"]
 	path = openal-soft
-	url = https://github.com/openal-soft.git
+	url = https://github.com/kcat/openal-soft.git

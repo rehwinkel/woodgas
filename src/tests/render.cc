@@ -1,5 +1,5 @@
-#include "render/render.h"
-#include "input/input.h"
+#include "../render/render.h"
+#include "../input/input.h"
 
 #include <cstdlib>
 

@@ -20,6 +20,16 @@ namespace render
         bool is_open();
     };
 
+    class Texture
+    {
+        GLuint texture;
+
+    public:
+        Texture(size_t width, size_t height, int components, const char *img_data, bool interpolate = false);
+        GLuint get_texture();
+        void cleanup();
+    };
+
     class Mesh
     {
         GLuint vao;
@@ -59,6 +69,7 @@ namespace render
     public:
         Renderer(Window &window);
         void clear();
+        void bind_texture(Texture &tex);
         void draw_quad();
     };
 } // namespace render

@@ -18,8 +18,10 @@ const char *quad_fragment_shader_source = R"glsl(
 in vec4 pass_color;
 out vec4 out_color;
 
+uniform sampler2D color_tex;
+
 void main()
 {
-    out_color = pass_color;
+    out_color = texture(color_tex, pass_color.xy);
 }
 )glsl";

@@ -40,6 +40,30 @@ void Window::swap_buffers()
     glfwSwapBuffers((GLFWwindow *)this->window);
 }
 
+Texture::Texture(size_t width, size_t height, int components, const char *img_data, bool interpolate)
+{
+    //TODO: use components
+    glGenTextures(1, &this->texture);
+    glBindTexture(GL_TEXTURE_2D, this->texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpolate ? GL_LINEAR : GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpolate ? GL_LINEAR : GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img_data);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+GLuint Texture::get_texture()
+{
+    return this->texture;
+}
+
+void Texture::cleanup()
+{
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDeleteTextures(1, &this->texture);
+}
+
 Mesh::Mesh() {}
 
 Mesh::Mesh(std::vector<float> vertices, std::vector<float> uvs, std::vector<int> indices) : length(indices.size())
@@ -164,7 +188,11 @@ void Renderer::clear()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-#include <iostream>
+void Renderer::bind_texture(Texture &tex)
+{
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex.get_texture());
+}
 
 void Renderer::draw_quad()
 {

@@ -71,6 +71,13 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "hash_map": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "system_error": "cpp",
+        "fstream": "cpp"
     }
 }

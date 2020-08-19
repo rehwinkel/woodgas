@@ -42,14 +42,26 @@ void Window::swap_buffers()
 
 Mesh::Mesh() {}
 
-Mesh::Mesh(std::vector<float> vertices) : length(vertices.size() / 3)
+Mesh::Mesh(std::vector<float> vertices, std::vector<float> uvs, std::vector<int> indices) : length(indices.size())
 {
     glGenVertexArrays(1, &this->vao);
     glBindVertexArray(this->vao);
+
     glGenBuffers(1, &this->vertex_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, this->vertex_vbo);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &(*vertices.begin()), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+    glGenBuffers(1, &this->uv_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, this->uv_vbo);
+    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(float), &(*uvs.begin()), GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+    glGenBuffers(1, &this->index_vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->index_vbo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(int), &(*indices.begin()), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
@@ -57,6 +69,11 @@ Mesh::Mesh(std::vector<float> vertices) : length(vertices.size() / 3)
 GLuint Mesh::get_vao()
 {
     return this->vao;
+}
+
+GLuint Mesh::get_indices()
+{
+    return this->index_vbo;
 }
 
 size_t Mesh::get_length()
@@ -121,7 +138,23 @@ void Shader::stop()
 
 Renderer::Renderer(Window &window)
 {
-    this->quad = Mesh(std::vector<float>{-1, 1, 0, -1, -1, 0, 1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0});
+    this->quad = Mesh(
+        std::vector<float>{
+            -1,
+            1,
+            0,
+            -1,
+            -1,
+            0,
+            1,
+            -1,
+            0,
+            1,
+            1,
+            0,
+        },
+        std::vector<float>{0, 0, 0, 1, 1, 1, 1, 0},
+        std::vector<int>{0, 1, 2, 2, 3, 0});
     this->quad_shader = Shader(quad_vertex_shader_source, quad_fragment_shader_source);
 }
 
@@ -131,12 +164,18 @@ void Renderer::clear()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+#include <iostream>
+
 void Renderer::draw_quad()
 {
     this->quad_shader.start();
     glBindVertexArray(this->quad.get_vao());
     glEnableVertexAttribArray(0);
-    glDrawArrays(GL_TRIANGLES, 0, this->quad.get_length());
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->quad.get_indices());
+    glDrawElements(GL_TRIANGLES, this->quad.get_length(), GL_UNSIGNED_INT, nullptr);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(0);
     glBindVertexArray(0);
     this->quad_shader.stop();

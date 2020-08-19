@@ -24,12 +24,15 @@ namespace render
     {
         GLuint vao;
         GLuint vertex_vbo;
+        GLuint uv_vbo;
+        GLuint index_vbo;
         size_t length;
 
     public:
         Mesh();
-        Mesh(std::vector<float> vertices);
+        Mesh(std::vector<float> vertices, std::vector<float> uvs, std::vector<int> indices);
         GLuint get_vao();
+        GLuint get_indices();
         size_t get_length();
         void cleanup();
     };

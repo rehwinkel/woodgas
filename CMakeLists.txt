@@ -11,5 +11,5 @@ include_directories(openal-soft/include/)
 add_library(woodgas STATIC src/render/glad/glad.c src/render/render.cc src/input/input.cc)
 target_link_libraries(woodgas glfw python3.8 z OpenAL)
 
-add_executable(woodgas_test src/woodgas_test.cc)
-target_link_libraries(woodgas_test woodgas)
+add_executable(render_test src/tests/render.cc)
+target_link_libraries(render_test woodgas)

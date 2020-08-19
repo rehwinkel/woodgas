@@ -80,6 +80,9 @@
         "system_error": "cpp",
         "fstream": "cpp",
         "unordered_set": "cpp",
-        "cfenv": "cpp"
-    }
+        "cfenv": "cpp",
+        "filesystem": "cpp",
+        "codecvt": "cpp"
+    },
+    "C_Cpp.default.cppStandard": "c++17"
 }

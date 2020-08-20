@@ -1,7 +1,5 @@
 #include "core.h"
 
-#include <iostream>
-
 core::Component::Component() : enabled(true) {
 }
 
@@ -27,23 +25,23 @@ void core::Entity::set_active(bool state) {
     this->enabled = state;
 }
 
-void core::Entity::add_children(Entity entity) {
-    if(this->has_children(entity.get_id())) throw std::runtime_error("Tried to add children with the id " + std::to_string(entity.get_id()) + ", but it already exists!");
+void core::Entity::add_child(Entity entity) {
+    if(this->has_child(entity.get_id())) throw std::runtime_error("Tried to add children with the id " + std::to_string(entity.get_id()) + ", but it already exists!");
     entity.parent = this;
     this->children.insert(std::make_pair(entity.get_id(), std::move(entity)));
 }
 
-core::Entity& core::Entity::get_children(size_t entity_id) {
-    if(!this->has_children(entity_id)) throw std::runtime_error("Tried to get children with id " + std::to_string(entity_id) + ", but it doesn't exist!");
+core::Entity& core::Entity::get_child(size_t entity_id) {
+    if(!this->has_child(entity_id)) throw std::runtime_error("Tried to get children with id " + std::to_string(entity_id) + ", but it doesn't exist!");
     return this->children.at(entity_id);
 }
 
-void core::Entity::destroy_children(size_t entity_id) {
-    if(!this->has_children(entity_id)) throw std::runtime_error("Tried to destroy children with id " + std::to_string(entity_id) + ", but it doesn't exist!");
+void core::Entity::destroy_child(size_t entity_id) {
+    if(!this->has_child(entity_id)) throw std::runtime_error("Tried to destroy children with id " + std::to_string(entity_id) + ", but it doesn't exist!");
     this->children.erase(entity_id);
 }
 
-bool core::Entity::has_children(size_t entity_id) noexcept {
+bool core::Entity::has_child(size_t entity_id) noexcept {
     return this->children.find(entity_id) != this->children.end();
 }
 

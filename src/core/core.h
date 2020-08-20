@@ -1,3 +1,5 @@
+// header for core ECS functionality and API
+
 #pragma once
 
 #include <map>
@@ -37,10 +39,10 @@ namespace core {
             bool is_enabled();
             void set_active(bool state);
             void add_component(std::unique_ptr<Component> component);
-            void add_children(Entity entity);
-            Entity& get_children(size_t entity_id);
-            void destroy_children(size_t entity_id);
-            bool has_children(size_t entity_id) noexcept;
+            void add_child(Entity entity);
+            Entity& get_child(size_t entity_id);
+            void destroy_child(size_t entity_id);
+            bool has_child(size_t entity_id) noexcept;
             size_t get_id() noexcept;
             bool has_parent() noexcept;
             template<class t>
@@ -48,7 +50,9 @@ namespace core {
             template<class t>
             inline bool has_component() noexcept;
             template<class t>
-            inline std::vector<std::unique_ptr<core::Component>>&  get_component();
+            inline std::vector<std::unique_ptr<core::Component>>& get_component();
+            template<class t>
+            inline Component& get_component();
             Entity& get_parent();
             ~Entity();
     };
@@ -92,4 +96,10 @@ std::vector<std::unique_ptr<core::Component>>& core::Entity::get_component() {
     } else {
         throw std::runtime_error("Tried to get " + std::string(typeid(t).name()) + ", but it doesn't exist!");
     }
+}
+
+template<class t>
+inline core::Component& core::Entity::get_component() {
+    std::vector<std::unique_ptr<core::Component>>& components = this->get_component<t>();
+    return *components.at(0);
 }

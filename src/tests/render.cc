@@ -1,18 +1,17 @@
 #include "../render/render.h"
-#include "../input/input.h"
 
 #include <cstdlib>
 
-int main(int argc, char const *argv[])
-{
+#include "../input/input.h"
+
+int main(int argc, char const *argv[]) {
     render::Window window(640, 480, "hey");
     render::Renderer renderer(window);
     input::Input input(window);
 
     render::Texture tex(16, 16, 4, (char *)std::malloc(1024));
 
-    while (window.is_open())
-    {
+    while (window.is_open()) {
         window.poll_inputs();
 
         renderer.clear();

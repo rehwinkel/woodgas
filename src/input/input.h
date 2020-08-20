@@ -4,11 +4,9 @@
 
 #include "../render/render.h"
 
-namespace input
-{
-    class Input
-    {
-    public:
+namespace input {
+    class Input {
+       public:
         Input(render::Window &window);
     };
-} // namespace input
+}

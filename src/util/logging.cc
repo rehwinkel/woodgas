@@ -20,10 +20,7 @@ void Logger::log_time_string() {
     std::time(&rawtime);
     timeinfo = std::localtime(&rawtime);
     std::strftime(buffer, sizeof(buffer), "%H:%M:%S", timeinfo);
-    std::string str(buffer);
-    std::string ms = std::to_string(std::clock() % 1000);
-    this->log_stream << "[" << str << "." << std::string(3 - ms.size(), '0')
-                     << ms << "]";
+    this->log_stream << "[" << buffer << "]";
 }
 
 void Logger::log(std::string message, LogLevel level) {

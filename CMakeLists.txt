@@ -6,8 +6,9 @@ add_subdirectory(openal-soft EXCLUDE_FROM_ALL)
 
 include_directories(stb/)
 include_directories(openal-soft/include/)
+include_directories(/usr/include/python3.8/)
 
-add_library(woodgas STATIC src/render/glad/glad.c src/render/render.cc src/input/input.cc src/asset/asset.cc)
+add_library(woodgas STATIC src/render/glad/glad.c src/render/render.cc src/input/input.cc src/asset/asset.cc src/script/python.cc)
 set_property(TARGET woodgas PROPERTY CXX_STANDARD 17)
 target_link_libraries(woodgas glfw python3.8 z OpenAL)
 
@@ -16,3 +17,6 @@ target_link_libraries(render_test woodgas)
 
 add_executable(asset_test src/tests/assets.cc)
 target_link_libraries(asset_test woodgas)
+
+add_executable(python_test src/tests/python.cc)
+target_link_libraries(python_test woodgas)

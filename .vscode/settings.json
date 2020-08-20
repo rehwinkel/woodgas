@@ -1,11 +1,10 @@
 {
     "C_Cpp.default.includePath": [
-        "stb",
-        "lua",
-        "zlib",
-        "glfw/include",
-        "openal-soft/include",
-        "AudioFile",
+        "stb/",
+        "zlib/",
+        "glfw/include/",
+        "openal-soft/include/",
+        "/usr/include/python3.8/",
     ],
     "files.associations": {
         "*.olvn": "json",

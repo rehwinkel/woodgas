@@ -10,6 +10,7 @@ namespace logging {
     class Logger {
         std::ostream &log_stream;
         LogLevel current_level;
+        void log_time_string();
 
        public:
         Logger();                    // log to console

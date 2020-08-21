@@ -9,7 +9,7 @@ int main(int argc, char const *argv[]) {
     render::Renderer renderer(window);
     input::Input input(window);
 
-    render::Texture tex(16, 16, 4, (char *)std::malloc(1024));
+    render::Texture tex(64, 64, 4, (char *)std::malloc(16384));
     float ar = 640.0 / 480.0;
     renderer.upload_ortho(-1 * ar, 1 * ar, -1, 1, 0.1, 100);
 

@@ -26,5 +26,8 @@ uniform sampler2D color_tex;
 void main()
 {
     out_color = texture(color_tex, pass_color.xy);
+    if (out_color.a == 0) {
+        discard;
+    }
 }
 )glsl";

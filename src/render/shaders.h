@@ -5,9 +5,12 @@ in vec3 position;
 in vec2 uv;
 out vec4 pass_color;
 
+uniform mat4 transform;
+uniform mat4 ortho;
+
 void main()
 {
-    gl_Position = vec4(position * 0.5, 1.0);
+    gl_Position = ortho * transform * vec4(position * 0.5, 1.0);
     pass_color = vec4(uv, 0.0, 1.0);
 }
 )glsl";

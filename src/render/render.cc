@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <system_error>
 #include <cstring>
+#include <cmath>
 
 using namespace render;
 
@@ -46,6 +47,73 @@ Texture::Texture(size_t width, size_t height, int components,
                  GL_UNSIGNED_BYTE, img_data);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+Transform3D::Transform3D()
+    : data{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1} {}
+
+void Transform3D::matrix_multiply(float *a, float *b) {
+    float out[16];
+    for (int row = 0; row < 4; row++) {
+        for (int col = 0; col < 4; col++) {
+            float sum = 0;
+            for (int i = 0; i < 4; i++) {
+                float a_val = a[row * 4 + i];
+                float b_val = b[col + i * 4];
+                sum += a_val * b_val;
+            }
+            out[row * 4 + col] = sum;
+        }
+    }
+    std::memcpy(a, out, 16 * sizeof(float));
+}
+
+Transform3D Transform3D::translate(float x, float y, float z) {
+    float tm[16] = {
+        1, 0, 0, x, 0, 1, 0, y, 0, 0, 1, z, 0, 0, 0, 1,
+    };
+    this->matrix_multiply(this->data, tm);
+    return *this;
+}
+
+Transform3D Transform3D::rotate_x(float x) {
+    float c = std::cos(x);
+    float s = std::sin(x);
+    float tm[16] = {
+        1, 0, 0, 0, 0, c, -s, 0, 0, s, c, 0, 0, 0, 0, 1,
+    };
+    this->matrix_multiply(this->data, tm);
+    return *this;
+}
+
+Transform3D Transform3D::rotate_y(float y) {
+    float c = std::cos(y);
+    float s = std::sin(y);
+    float tm[16] = {
+        c, 0, s, 0, 0, 1, 0, 0, -s, 0, c, 0, 0, 0, 0, 1,
+    };
+    this->matrix_multiply(this->data, tm);
+    return *this;
+}
+
+Transform3D Transform3D::rotate_z(float z) {
+    float c = std::cos(z);
+    float s = std::sin(z);
+    float tm[16] = {
+        c, -s, 0, 0, s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+    };
+    this->matrix_multiply(this->data, tm);
+    return *this;
+}
+
+Transform3D Transform3D::scale(float x, float y, float z) {
+    float tm[16] = {
+        x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1,
+    };
+    this->matrix_multiply(this->data, tm);
+    return *this;
+}
+
+float *Transform3D::get_data() { return this->data; }
 
 GLuint Texture::get_texture() { return this->texture; }
 
@@ -137,6 +205,27 @@ void Shader::start() { glUseProgram(this->program); }
 
 void Shader::stop() { glUseProgram(0); }
 
+QuadShader::QuadShader()
+    : Shader(quad_vertex_shader_source, quad_fragment_shader_source) {}
+
+void QuadShader::load_uniforms() {
+    glLinkProgram(this->program);
+    this->transform_uni = glGetUniformLocation(this->program, "transform");
+    this->ortho_uni = glGetUniformLocation(this->program, "ortho");
+}
+
+void QuadShader::set_transform(float *data) {
+    this->start();
+    glUniformMatrix4fv(this->transform_uni, 1, true, data);
+    this->stop();
+}
+
+void QuadShader::set_ortho(float *data) {
+    this->start();
+    glUniformMatrix4fv(this->ortho_uni, 1, true, data);
+    this->stop();
+}
+
 Renderer::Renderer(Window &window) {
     this->quad = Mesh(
         std::vector<float>{
@@ -155,13 +244,44 @@ Renderer::Renderer(Window &window) {
         },
         std::vector<float>{0, 0, 0, 1, 1, 1, 1, 0},
         std::vector<int>{0, 1, 2, 2, 3, 0});
-    this->quad_shader =
-        Shader(quad_vertex_shader_source, quad_fragment_shader_source);
+    this->quad_shader = QuadShader();
+    this->quad_shader.load_uniforms();
 }
 
 void Renderer::clear() {
     glClearColor(1.0, 0.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Renderer::upload_transform(Transform3D &&tf) {
+    this->quad_shader.set_transform(tf.get_data());
+}
+
+void Renderer::upload_transform(Transform3D &tf) {
+    this->quad_shader.set_transform(tf.get_data());
+}
+
+void Renderer::upload_ortho(float left, float right, float bottom, float top,
+                            float near, float far) {
+    float data[16] = {
+        2.0f / (right - left),
+        0,
+        0,
+        -(right + left) / (right - left),
+        0,
+        2.0f / (top - bottom),
+        0,
+        -(top + bottom) / (top - bottom),
+        0,
+        0,
+        2.0f / (far - near),
+        -(far + left) / (far - near),
+        0,
+        0,
+        0,
+        1,
+    };
+    this->quad_shader.set_ortho(data);
 }
 
 void Renderer::bind_texture(Texture &tex) {

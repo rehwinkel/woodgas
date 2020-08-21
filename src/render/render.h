@@ -6,6 +6,7 @@
 #include <vector>
 
 typedef unsigned int GLuint;
+typedef int GLint;
 
 namespace render {
     class Window {
@@ -16,6 +17,20 @@ namespace render {
         void poll_inputs();
         void swap_buffers();
         bool is_open();
+    };
+
+    class Transform3D {
+        float data[16];
+        void matrix_multiply(float *a, float *b);
+
+       public:
+        Transform3D();
+        Transform3D translate(float x, float y, float z);
+        Transform3D rotate_x(float x);
+        Transform3D rotate_y(float y);
+        Transform3D rotate_z(float z);
+        Transform3D scale(float x, float y, float z);
+        float *get_data();
     };
 
     class Texture {
@@ -46,6 +61,7 @@ namespace render {
     };
 
     class Shader {
+       protected:
         GLuint program;
         GLuint vertex_shader;
         GLuint fragment_shader;
@@ -59,13 +75,28 @@ namespace render {
         void stop();
     };
 
+    class QuadShader : public Shader {
+        GLint transform_uni;
+        GLint ortho_uni;
+
+       public:
+        QuadShader();
+        void load_uniforms();
+        void set_transform(float *data);
+        void set_ortho(float *data);
+    };
+
     class Renderer {
         Mesh quad;
-        Shader quad_shader;
+        QuadShader quad_shader;
 
        public:
         Renderer(Window &window);
         void clear();
+        void upload_transform(Transform3D &&tf);
+        void upload_transform(Transform3D &tf);
+        void upload_ortho(float left, float right, float bottom, float top,
+                          float near, float far);
         void bind_texture(Texture &tex);
         void draw_quad();
     };

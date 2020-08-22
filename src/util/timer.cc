@@ -1,10 +1,10 @@
-#include "time.h"
+#include "timer.h"
 
 #include <GLFW/glfw3.h>
 
-using namespace time;
+using namespace timer;
 
-Time::Time() : prev_frame_time(glfwGetTime()) {}
+Time::Time(render::Window &window) : prev_frame_time(glfwGetTime()) {}
 
 double Time::current() { return glfwGetTime(); }
 

@@ -125,3 +125,5 @@ std::vector<unsigned char> Assets::store_assets() {
     }
     return std::move(this->compress(data));
 }
+
+void Assets::deallocate() { this->images.clear(); }

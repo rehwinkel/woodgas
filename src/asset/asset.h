@@ -34,6 +34,7 @@ namespace asset {
         Assets(std::string path);
         Assets(std::string path, void *data_start, void *data_end);
         Image &load_image(std::string resource);
+        void deallocate();
         std::vector<unsigned char> store_assets();
     };
 }

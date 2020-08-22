@@ -7,7 +7,6 @@
 int main(int argc, char const *argv[]) {
     render::Window window(640, 480, "hey");
     render::Renderer renderer(window);
-    input::Input input(window);
 
     render::Texture tex(64, 64, 4, (char *)std::malloc(16384));
     float ar = 640.0 / 480.0;

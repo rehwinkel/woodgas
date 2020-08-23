@@ -81,7 +81,8 @@
         "unordered_set": "cpp",
         "cfenv": "cpp",
         "filesystem": "cpp",
-        "codecvt": "cpp"
+        "codecvt": "cpp",
+        "*.rh": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++17"
 }

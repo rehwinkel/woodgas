@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "../util/logging.h"
+
 #include <string>
 #include <vector>
 
@@ -11,12 +13,16 @@ typedef int GLint;
 namespace render {
     class Window {
         void *window;
+        logging::Logger &logger;
 
        public:
-        Window(int width, int height, std::string title);
+        Window(int width, int height, std::string title,
+               logging::Logger &logger);
+        ~Window();
         void poll_inputs();
         void swap_buffers();
         bool is_open();
+        void *_get_window_ptr();
     };
 
     class Transform3D {
@@ -89,9 +95,10 @@ namespace render {
     class Renderer {
         Mesh quad;
         QuadShader quad_shader;
+        logging::Logger &logger;
 
        public:
-        Renderer(Window &window);
+        Renderer(Window &window, logging::Logger &logger);
         void clear();
         void upload_transform(Transform3D &&tf);
         void upload_transform(Transform3D &tf);

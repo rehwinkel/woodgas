@@ -9,19 +9,43 @@
 
 using namespace render;
 
-Window::Window(int width, int height, std::string title) {
+Window::Window(int width, int height, std::string title,
+               logging::Logger &logger)
+    : logger(logger) {
+    logger.debug("initializing GLFW...");
     if (!glfwInit()) {
+        logger.error("failed to initialize GLFW");
         throw std::runtime_error("failed to initialize GLFW");
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    logger.debug("creating window...");
     this->window =
         glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+    if (this->window == nullptr) {
+        if (glfwGetError(nullptr) == GLFW_VERSION_UNAVAILABLE) {
+            logger.error(
+                "failed to create window because OpenGL 3.0 is not supported");
+        } else {
+            logger.error_stream()
+                << "failed to create window with GLFW-Error-Code "
+                << glfwGetError(nullptr) << logging::COLOR_RS << std::endl;
+        }
+        throw std::runtime_error("failed to create window");
+    }
     glfwMakeContextCurrent((GLFWwindow *)this->window);
-    if (!gladLoadGL()) {
+    logger.debug("loading GLAD...");
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        logger.error("failed to load GLAD");
         throw std::runtime_error("failed to initialize GLAD");
     }
+}
+
+Window::~Window() {
+    logger.debug("terminating GLFW...");
+    glfwTerminate();
 }
 
 bool Window::is_open() {
@@ -31,6 +55,8 @@ bool Window::is_open() {
 void Window::poll_inputs() { glfwPollEvents(); }
 
 void Window::swap_buffers() { glfwSwapBuffers((GLFWwindow *)this->window); }
+
+void *Window::_get_window_ptr() { return this->window; }
 
 Texture::Texture(size_t width, size_t height, int components,
                  const char *img_data, bool interpolate) {
@@ -226,7 +252,8 @@ void QuadShader::set_ortho(float *data) {
     this->stop();
 }
 
-Renderer::Renderer(Window &window) {
+Renderer::Renderer(Window &window, logging::Logger &logger) : logger(logger) {
+    logger.debug("creating quad mesh...");
     this->quad = Mesh(
         std::vector<float>{
             -1,
@@ -244,6 +271,7 @@ Renderer::Renderer(Window &window) {
         },
         std::vector<float>{0, 0, 0, 1, 1, 1, 1, 0},
         std::vector<int>{0, 1, 2, 2, 3, 0});
+    logger.debug("creating quad shader...");
     this->quad_shader = QuadShader();
     this->quad_shader.load_uniforms();
 }

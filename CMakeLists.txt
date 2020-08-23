@@ -1,16 +1,18 @@
 cmake_minimum_required(VERSION 3.10)
 project(woodgas)
 
-set(LIBTYPE "STATIC")
-add_subdirectory(openal-soft EXCLUDE_FROM_ALL)
+set(PY_VERSION 3.8)
+find_package(PythonLibs ${PY_VERSION} REQUIRED)
 
 include_directories(stb/)
-include_directories(openal-soft/include/)
-include_directories(/usr/include/python3.8/)
+include_directories(libsoundio/)
+include_directories(${PYTHON_INCLUDE_DIRS})
+
+add_subdirectory(libsoundio)
 
 add_library(woodgas STATIC src/render/glad/glad.c src/render/render.cc src/input/input.cc src/util/timer.cc src/util/logging.cc src/asset/asset.cc src/script/python.cc src/core/core.cc)
 set_property(TARGET woodgas PROPERTY CXX_STANDARD 17)
-target_link_libraries(woodgas glfw python3.8 z OpenAL)
+target_link_libraries(woodgas glfw z dl pthread libsoundio_shared ${PYTHON_LIBRARIES})
 
 add_executable(render_test src/tests/render.cc)
 target_link_libraries(render_test woodgas)

@@ -1,6 +1,6 @@
 [submodule "stb"]
 	path = stb
 	url = https://github.com/nothings/stb.git
-[submodule "openal-soft"]
-	path = openal-soft
-	url = https://github.com/kcat/openal-soft.git
+[submodule "libsoundio"]
+	path = libsoundio
+	url = https://github.com/andrewrk/libsoundio.git

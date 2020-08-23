@@ -5,6 +5,8 @@
 #include <ostream>
 
 namespace logging {
+    const char *const COLOR_RS = "\033[0m";
+
     enum LogLevel { DEBUG, INFO, WARN, ERROR };
 
     class Logger {
@@ -12,6 +14,8 @@ namespace logging {
         std::ostream void_stream;
         LogLevel current_level;
         void log_time_string();
+        void log_level_color(LogLevel level);
+        void log_level_name(LogLevel level);
 
        public:
         Logger();                    // log to console

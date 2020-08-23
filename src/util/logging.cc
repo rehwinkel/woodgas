@@ -23,51 +23,58 @@ void Logger::log_time_string() {
     this->out_stream << "[" << buffer << "]";
 }
 
+void Logger::log_level_color(LogLevel level) {
+    switch (level) {
+        case DEBUG:
+            this->out_stream << "\033[0;32m";
+            break;
+        case INFO:
+            this->out_stream << "";
+            break;
+        case WARN:
+            this->out_stream << "\033[0;33m";
+            break;
+        case ERROR:
+            this->out_stream << "\033[0;31m";
+            break;
+    }
+}
+
+void Logger::log_level_name(LogLevel level) {
+    switch (level) {
+        case DEBUG:
+            this->out_stream << "[DEBUG]";
+            break;
+        case INFO:
+            this->out_stream << "[INFO]";
+            break;
+        case WARN:
+            this->out_stream << "[WARN]";
+            break;
+        case ERROR:
+            this->out_stream << "[ERROR]";
+            break;
+    }
+}
+
 void Logger::log(std::string message, LogLevel level) {
     if (this->current_level <= level) {
-        this->out_stream << "\033[0m";
+        this->log_level_color(level);
         this->log_time_string();
         this->out_stream << " ";
+        this->log_level_name(level);
 
-        switch (level) {
-            case DEBUG:
-                this->out_stream << "[DEBUG]\033[0;32m ";
-                break;
-            case INFO:
-                this->out_stream << "[INFO] ";
-                break;
-            case WARN:
-                this->out_stream << "[WARN]\033[0;33m ";
-                break;
-            case ERROR:
-                this->out_stream << "[ERROR]\033[0;31m ";
-                break;
-        }
-
-        this->out_stream << message << std::endl;
+        this->out_stream << " " << message << "\033[0m" << std::endl;
     }
 }
 
 std::ostream &Logger::log_stream(LogLevel level) {
     if (this->current_level <= level) {
-        this->out_stream << "\033[0m";
+        this->log_level_color(level);
         this->log_time_string();
         this->out_stream << " ";
-
-        switch (level) {
-            case DEBUG:
-                this->out_stream << "[DEBUG]\033[0;32m ";
-                break;
-            case INFO:
-                this->out_stream << "[INFO] ";
-                break;
-            case WARN:
-                this->out_stream << "[WARN]\033[0;33m ";
-                break;
-            case ERROR:
-                this->out_stream << "[ERROR]\033[0;31m ";
-                break;
-        }
+        this->log_level_name(level);
+        this->out_stream << " ";
 
         return this->out_stream;
     }

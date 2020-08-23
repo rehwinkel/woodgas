@@ -12,7 +12,7 @@ add_subdirectory(libsoundio)
 
 add_library(woodgas STATIC src/render/glad/glad.c src/render/render.cc src/input/input.cc src/util/timer.cc src/util/logging.cc src/asset/asset.cc src/script/python.cc src/core/core.cc)
 set_property(TARGET woodgas PROPERTY CXX_STANDARD 17)
-target_link_libraries(woodgas glfw z dl pthread libsoundio_shared ${PYTHON_LIBRARIES})
+target_link_libraries(woodgas glfw z dl libsoundio_static ${PYTHON_LIBRARIES})
 
 add_executable(render_test src/tests/render.cc)
 target_link_libraries(render_test woodgas)

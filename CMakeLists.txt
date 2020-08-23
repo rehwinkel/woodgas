@@ -31,3 +31,6 @@ target_link_libraries(core_test woodgas)
 
 add_executable(time_test src/tests/time.cc)
 target_link_libraries(time_test woodgas)
+
+add_executable(full_test src/tests/full.cc)
+target_link_libraries(full_test woodgas)

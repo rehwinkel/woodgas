@@ -3,6 +3,8 @@
 #pragma once
 
 #include "../core/core.h"
+#include "../render/render.h"
+#include "../util/logging.h"
 
 #include <Python.h>
 
@@ -22,11 +24,14 @@ namespace python {
     class PythonInterface {
         PyObject *global_scope;
         PyObject *component_clazz;
+        logging::Logger &logger;
+        PyObject *create_render_module(render::Renderer &renderer);
 
        public:
-        PythonInterface();
+        PythonInterface(logging::Logger &logger, render::Renderer &renderer);
         ~PythonInterface();
         void add_code(std::string py_source);
         std::map<std::string, PythonComponent> load_components();
+        void start_main();
     };
 }

@@ -1,5 +1,7 @@
 #include "python.h"
 
+#include "py_modules/render.cc"
+
 #include <system_error>
 
 using namespace python;
@@ -18,7 +20,10 @@ void PythonComponent::init() {
 
 bool PythonComponent::is_unique() { return false; }
 
-PythonInterface::PythonInterface() {
+PythonInterface::PythonInterface(logging::Logger &logger,
+                                 render::Renderer &renderer)
+    : logger(logger) {
+    logger.debug("initializing python...");
     Py_Initialize();
     PyObject *module = PyImport_AddModule("__main__");
     this->global_scope = PyModule_GetDict(module);
@@ -31,14 +36,23 @@ PythonInterface::PythonInterface() {
     };
     this->component_clazz =
         PyDict_GetItem(this->global_scope, PyUnicode_FromString("Component"));
+    PyDict_SetItemString(this->global_scope, "render",
+                         this->create_render_module(renderer));
+}
+
+PyObject *PythonInterface::create_render_module(render::Renderer &renderer) {
+    PyObject *module = PyModule_Create(&render_module);
+    PyDict_SetItemString(PyModule_GetDict(module), "p_render",
+                         PyCapsule_New(&renderer, nullptr, nullptr));
+    return module;
 }
 
 PythonInterface::~PythonInterface() { Py_Finalize(); }
 
 void PythonInterface::add_code(std::string py_source) {
-    PyObject *v =
-        PyRun_StringFlags(py_source.c_str(), Py_file_input, this->global_scope,
-                          this->global_scope, nullptr);
+    logger.debug("running python code segment...");
+    PyRun_StringFlags(py_source.c_str(), Py_file_input, this->global_scope,
+                      this->global_scope, nullptr);
 }
 
 std::map<std::string, PythonComponent> PythonInterface::load_components() {
@@ -59,4 +73,14 @@ std::map<std::string, PythonComponent> PythonInterface::load_components() {
         }
     }
     return std::move(components);
+}
+
+void PythonInterface::start_main() {
+    logger.debug("starting python main...");
+    PyObject *main = PyDict_GetItemString(this->global_scope, "main");
+    if (main) {
+        PyObject_Call(main, Py_None, Py_None);
+    } else {
+        logger.error("missing python main");
+    }
 }

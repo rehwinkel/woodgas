@@ -1,6 +1,7 @@
 #include "python.h"
 
 #include "py_modules/render.cc"
+#include "py_modules/logger.cc"
 
 #include <system_error>
 
@@ -38,12 +39,25 @@ PythonInterface::PythonInterface(logging::Logger &logger,
         PyDict_GetItem(this->global_scope, PyUnicode_FromString("Component"));
     PyDict_SetItemString(this->global_scope, "render",
                          this->create_render_module(renderer));
+    PyDict_SetItemString(this->global_scope, "logger",
+                         this->create_logger_module(logger));
 }
 
 PyObject *PythonInterface::create_render_module(render::Renderer &renderer) {
     PyObject *module = PyModule_Create(&render_module);
     PyDict_SetItemString(PyModule_GetDict(module), "p_render",
                          PyCapsule_New(&renderer, nullptr, nullptr));
+    return module;
+}
+
+PyObject *PythonInterface::create_logger_module(logging::Logger &logger) {
+    PyObject *module = PyModule_Create(&logger_module);
+    PyDict_SetItemString(PyModule_GetDict(module), "p_logger",
+                         PyCapsule_New(&logger, nullptr, nullptr));
+    PyModule_AddIntConstant(module, "ERROR", logging::LogLevel::ERROR);
+    PyModule_AddIntConstant(module, "WARN", logging::LogLevel::WARN);
+    PyModule_AddIntConstant(module, "INFO", logging::LogLevel::INFO);
+    PyModule_AddIntConstant(module, "DEBUG", logging::LogLevel::DEBUG);
     return module;
 }
 

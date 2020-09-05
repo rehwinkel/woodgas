@@ -26,6 +26,7 @@ namespace python {
         PyObject *component_clazz;
         logging::Logger &logger;
         PyObject *create_render_module(render::Renderer &renderer);
+        PyObject *create_logger_module(logging::Logger &renderer);
 
        public:
         PythonInterface(logging::Logger &logger, render::Renderer &renderer);

@@ -7,9 +7,11 @@
 
 using namespace logging;
 
-Logger::Logger() : out_stream(std::cout), void_stream(0) {}
+Logger::Logger()
+    : out_stream(std::cout), void_stream(0), current_level(LogLevel::DEBUG) {}
 
-Logger::Logger(std::ostream &file) : out_stream(file), void_stream(0) {}
+Logger::Logger(std::ostream &file)
+    : out_stream(file), void_stream(0), current_level(LogLevel::DEBUG) {}
 
 void Logger::set_log_level(LogLevel level) { this->current_level = level; }
 

@@ -6,7 +6,12 @@
 #include <vector>
 #include <map>
 
+#include "../util/logging.h"
+
 namespace asset {
+    std::vector<unsigned char> read_file_to_vector(std::ifstream &in_file,
+                                                   std::string &resource);
+
     class Image {
         size_t width, height;
         int components;
@@ -33,6 +38,7 @@ namespace asset {
     };
 
     class Assets {
+        logging::Logger &logger;
         std::string path;
         size_t next_asset_index;
         std::map<std::string, size_t> resource_to_index_map;
@@ -42,10 +48,14 @@ namespace asset {
         std::vector<unsigned char> decompress(std::vector<unsigned char> &data);
 
        public:
-        Assets(std::string path);
-        Assets(std::string path, void *data_start, void *data_end);
+        Assets(logging::Logger &logger, std::string path);
+        Assets(logging::Logger &logger, std::string path, void *data_start,
+               void *data_end);
         Image &load_image(std::string resource);
         Generic &load_generic(std::string resource);
+        Generic &load_python(std::string resource);
+        Generic &load_vector(std::string resource,
+                             std::vector<unsigned char> data);
         void deallocate();
         std::vector<unsigned char> store_assets();
     };

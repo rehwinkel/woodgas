@@ -19,10 +19,18 @@ namespace serialize {
         return sizeof(value.size()) + value.size();
     }
 
+    size_t size_array(size_t size) { return sizeof(size) + size; }
+
     void write_string(void** data, const std::string& value) {
         write_value(data, value.size());
         std::memcpy((char*)*data, &(*value.begin()), value.size());
         *((char**)data) += value.size();
+    }
+
+    void write_array(void** data, size_t size, void* array_data) {
+        write_value(data, size);
+        std::memcpy((char*)*data, array_data, size);
+        *((char**)data) += size;
     }
 
     std::string read_string(void** data) {
@@ -58,5 +66,14 @@ namespace serialize {
         std::memcpy(&(*img_data.begin()), (char*)*data, img_data.size());
         *((char**)data) += img_data.size();
         return asset::Image(width, height, components, img_data);
+    }
+
+    std::vector<unsigned char> read_array(void** data) {
+        size_t size = read_value<size_t>(data);
+        std::vector<unsigned char> array_data;
+        array_data.resize(size);
+        std::memcpy(&(*array_data.begin()), (char*)*data, array_data.size());
+        *((char**)data) += size;
+        return std::move(array_data);
     }
 }

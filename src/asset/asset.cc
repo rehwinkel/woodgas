@@ -6,6 +6,8 @@
 #include <system_error>
 #include <filesystem>
 #include <cstring>
+#include <fstream>
+#include <iterator>
 
 #include "serialize.cc"
 
@@ -24,6 +26,13 @@ unsigned char *Image::get_data() { return &(*this->data.begin()); }
 size_t Image::get_width() { return this->width; }
 size_t Image::get_height() { return this->height; }
 int Image::get_components() { return this->components; }
+
+Generic::Generic() {}
+
+Generic::Generic(std::vector<unsigned char> data) : data(data) {}
+
+unsigned char *Generic::get_data() { return &(*this->data.begin()); }
+size_t Generic::size() { return this->data.size(); }
 
 Assets::Assets(std::string path) : path(path), next_asset_index(0) {}
 
@@ -45,6 +54,11 @@ Assets::Assets(std::string path, void *data_start, void *data_end)
     for (size_t i = 0; i < images_size; i++) {
         size_t index = serialize::read_value<size_t>(&dest);
         images[index] = serialize::read_image(&dest);
+    }
+    size_t generics_size = serialize::read_value<size_t>(&dest);
+    for (size_t i = 0; i < generics_size; i++) {
+        size_t index = serialize::read_value<size_t>(&dest);
+        generics[index] = Generic(std::move(serialize::read_array(&dest)));
     }
 }
 
@@ -68,6 +82,33 @@ Image &Assets::load_image(std::string resource) {
                   std::vector<unsigned char>{data, data + width * height * 4});
         stbi_image_free(data);
         return this->images[index];
+    }
+}
+
+Generic &Assets::load_generic(std::string resource) {
+    if (this->resource_to_index_map.find(resource) !=
+        this->resource_to_index_map.end()) {
+        throw std::runtime_error("duplicate resource found: " + resource);
+    } else {
+        size_t index = this->next_asset_index++;
+        this->resource_to_index_map[resource] = index;
+        std::filesystem::path file_path =
+            std::filesystem::path(this->path) / std::filesystem::path(resource);
+        std::ifstream in_file(file_path, std::ios::binary | std::ios::ate);
+        if (!in_file.is_open()) {
+            throw std::runtime_error("failed to load generic data: " +
+                                     resource);
+        }
+        std::streamsize size = in_file.tellg();
+        in_file.seekg(0, std::ios::beg);
+        std::vector<unsigned char> data(size);
+        if (!in_file.read((char *)data.data(), size)) {
+            throw std::runtime_error("failed to load generic data: " +
+                                     resource);
+        }
+        in_file.close();
+        this->generics[index] = Generic(std::move(data));
+        return this->generics[index];
     }
 }
 
@@ -101,12 +142,16 @@ std::vector<unsigned char> Assets::store_assets() {
     size_t size = sizeof(this->next_asset_index) +
                   serialize::size_string(this->path) +
                   sizeof(this->resource_to_index_map.size()) +
-                  sizeof(this->images.size());
+                  sizeof(this->images.size()) + sizeof(this->generics.size());
     for (auto &entry : this->resource_to_index_map) {
         size += serialize::size_string(entry.first) + sizeof(entry.second);
     }
     for (auto &entry : this->images) {
         size += sizeof(entry.first) + serialize::size_image(entry.second);
+    }
+    for (auto &entry : this->generics) {
+        size +=
+            sizeof(entry.first) + serialize::size_array(entry.second.size());
     }
     std::vector<unsigned char> data;
     data.resize(size);
@@ -123,7 +168,16 @@ std::vector<unsigned char> Assets::store_assets() {
         serialize::write_value(&dest, entry.first);
         serialize::write_image(&dest, entry.second);
     }
+    serialize::write_value(&dest, this->generics.size());
+    for (auto &entry : this->generics) {
+        serialize::write_value(&dest, entry.first);
+        serialize::write_array(&dest, entry.second.size(),
+                               entry.second.get_data());
+    }
     return std::move(this->compress(data));
 }
 
-void Assets::deallocate() { this->images.clear(); }
+void Assets::deallocate() {
+    this->images.clear();
+    this->generics.clear();
+}

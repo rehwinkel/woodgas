@@ -82,7 +82,8 @@
         "cfenv": "cpp",
         "filesystem": "cpp",
         "codecvt": "cpp",
-        "*.rh": "cpp"
+        "*.rh": "cpp",
+        "forward_list": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++17"
 }

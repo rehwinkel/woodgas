@@ -31,7 +31,7 @@ def main():
         render.draw_quad()
     )py");
     py_if.start_main();
-    PyErr_Print();
+    py_if.print_error();
     auto components = py_if.load_components();
     for (auto &component : components) {
         component.second.init();

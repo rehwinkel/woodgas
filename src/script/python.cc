@@ -121,12 +121,21 @@ std::map<std::string, PythonComponent> PythonInterface::load_components() {
             PyObject *init_function = PyObject_GetAttrString(clazz, "init");
             PyObject *update_function = PyObject_GetAttrString(clazz, "update");
             std::string name_str(PyUnicode_AsUTF8(name));
-            components.insert(
-                {name_str, PythonComponent(init_function, update_function)});
+            components.emplace(name_str,
+                               PythonComponent(init_function, update_function));
         }
     }
     Py_DECREF(vals);
     return std::move(components);
+}
+
+void PythonInterface::print_error() {
+    if (PyErr_Occurred()) {
+        std::ostream &str = this->logger.error_stream();
+        str << "python error:" << std::endl;
+        PyErr_Print();
+        str << logging::COLOR_RS << std::endl;
+    }
 }
 
 void PythonInterface::start_main() {

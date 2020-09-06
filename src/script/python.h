@@ -40,5 +40,6 @@ namespace python {
         void add_code(std::string py_source);
         std::map<std::string, PythonComponent> load_components();
         void start_main();
+        void print_error();
     };
 }

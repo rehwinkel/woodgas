@@ -4,6 +4,7 @@
 #include "py_modules/logger.cc"
 
 #include <system_error>
+#include <marshal.h>
 
 using namespace python;
 
@@ -26,6 +27,31 @@ void PythonComponent::init() {
 
 bool PythonComponent::is_unique() { return false; }
 
+std::vector<unsigned char> python::compile_python(logging::Logger &logger,
+                                                  std::string source,
+                                                  std::string filename) {
+    Py_Initialize();
+    PyObject *code = Py_CompileStringExFlags(source.c_str(), filename.c_str(),
+                                             Py_file_input, NULL, 2);
+    if (!code) {
+        logger.error("failed to parse or compile python code");
+    }
+    PyObject *encoded_code = PyMarshal_WriteObjectToString(code, 2);
+    char *code_data = PyBytes_AsString(encoded_code);
+    size_t encoded_size = PyBytes_Size(encoded_code);
+    std::vector<unsigned char> data((unsigned char *)code_data,
+                                    (unsigned char *)code_data + encoded_size);
+    Py_DECREF(encoded_code);
+    Py_DECREF(code);
+    Py_Finalize();
+    return std::move(data);
+}
+
+PyObject *python::load_compiled_python(std::vector<unsigned char> data) {
+    return PyMarshal_ReadObjectFromString((char *)&(*data.begin()),
+                                          data.size());
+}
+
 PythonInterface::PythonInterface(logging::Logger &logger,
                                  render::Renderer &renderer)
     : logger(logger) {
@@ -33,19 +59,27 @@ PythonInterface::PythonInterface(logging::Logger &logger,
     Py_Initialize();
     PyObject *module = PyImport_AddModule("__main__");
     this->global_scope = PyModule_GetDict(module);
-    if (PyRun_StringFlags("class Component:\n\tdef init():\n\t\tpass\n\tdef "
-                          "update():\n\t\tpass",
-                          Py_file_input, this->global_scope, this->global_scope,
-                          nullptr) == nullptr) {
+    PyObject *run_result;
+    if (!(run_result = PyRun_StringFlags(
+              "class Component:\n\tdef init():\n\t\tpass\n\tdef "
+              "update():\n\t\tpass",
+              Py_file_input, this->global_scope, this->global_scope,
+              nullptr))) {
         throw std::runtime_error(
             "failed to create component base python class");
     };
+    Py_DECREF(run_result);
     this->component_clazz =
         PyDict_GetItemString(this->global_scope, "Component");
     PyDict_SetItemString(this->global_scope, "render",
                          this->create_render_module(renderer));
     PyDict_SetItemString(this->global_scope, "logger",
                          this->create_logger_module(logger));
+
+    // PyObject *code = load_compiled_python();
+    // Py_DECREF(PyEval_EvalCode(code, this->global_scope, this->global_scope));
+    // Py_DECREF(code);
+    // exit(1);
 }
 
 PyObject *PythonInterface::create_render_module(render::Renderer &renderer) {

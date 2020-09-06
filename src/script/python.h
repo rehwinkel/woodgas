@@ -9,6 +9,11 @@
 #include <Python.h>
 
 namespace python {
+    PyObject *load_compiled_python(std::vector<unsigned char> data);
+    std::vector<unsigned char> compile_python(logging::Logger &logger,
+                                              std::string source,
+                                              std::string filename);
+
     class PythonComponent : public core::Component {
         PyObject *init_function_obj;
         PyObject *update_function_obj;

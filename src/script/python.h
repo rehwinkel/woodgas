@@ -16,6 +16,7 @@ namespace python {
        public:
         PythonComponent(PyObject *init_function_obj,
                         PyObject *update_function_obj);
+        virtual ~PythonComponent();
         virtual void update();
         virtual void init();
         virtual bool is_unique();

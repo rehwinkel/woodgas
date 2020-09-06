@@ -24,6 +24,7 @@ void do_logging(int start_index, int elements, logging::LogLevel log_level,
     for (int i = start_index; i < elements; i++) {
         PyObject *repr = PyObject_Repr(PyTuple_GetItem(args, i));
         stream << PyUnicode_AsUTF8(repr);
+        Py_DECREF(repr);
         if (i + 1 < elements) {
             stream << sep;
         }

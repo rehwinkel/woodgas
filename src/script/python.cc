@@ -11,6 +11,11 @@ PythonComponent::PythonComponent(PyObject *init_function,
                                  PyObject *update_function)
     : init_function_obj(init_function), update_function_obj(update_function) {}
 
+PythonComponent::~PythonComponent() {
+    Py_DECREF(this->init_function_obj);
+    Py_DECREF(this->update_function_obj);
+}
+
 void PythonComponent::update() {
     PyObject_Call(this->update_function_obj, PyTuple_New(0), nullptr);
 }
@@ -36,7 +41,7 @@ PythonInterface::PythonInterface(logging::Logger &logger,
             "failed to create component base python class");
     };
     this->component_clazz =
-        PyDict_GetItem(this->global_scope, PyUnicode_FromString("Component"));
+        PyDict_GetItemString(this->global_scope, "Component");
     PyDict_SetItemString(this->global_scope, "render",
                          this->create_render_module(renderer));
     PyDict_SetItemString(this->global_scope, "logger",
@@ -86,6 +91,7 @@ std::map<std::string, PythonComponent> PythonInterface::load_components() {
                 {name_str, PythonComponent(init_function, update_function)});
         }
     }
+    Py_DECREF(vals);
     return std::move(components);
 }
 

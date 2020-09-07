@@ -34,6 +34,12 @@ Generic::Generic(std::vector<unsigned char> data) : data(data) {}
 
 unsigned char *Generic::get_data() { return &(*this->data.begin()); }
 size_t Generic::size() { return this->data.size(); }
+std::string_view Generic::get_string_view() {
+    return std::string_view((char *)this->get_data(), this->size());
+}
+std::string Generic::get_string() {
+    return std::string((char *)this->get_data(), this->size());
+}
 
 Assets::Assets(logging::Logger &logger, std::string path)
     : path(path), next_asset_index(0), logger(logger) {

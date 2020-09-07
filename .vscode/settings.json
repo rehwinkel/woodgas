@@ -1,9 +1,7 @@
 {
     "C_Cpp.default.includePath": [
         "stb/",
-        "zlib/",
-        "glfw/include/",
-        "openal-soft/include/",
+        "rapidjson/include/",
         "/usr/include/python3.8/",
     ],
     "files.associations": {

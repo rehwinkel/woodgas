@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <string_view>
 
 #include "../util/logging.h"
 
@@ -35,6 +36,8 @@ namespace asset {
         Generic(std::vector<unsigned char> data);
         unsigned char *get_data();
         size_t size();
+        std::string_view get_string_view();
+        std::string get_string();
     };
 
     class Assets {

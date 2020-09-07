@@ -47,11 +47,6 @@ std::vector<unsigned char> python::compile_python(logging::Logger &logger,
     return std::move(data);
 }
 
-PyObject *python::load_compiled_python(std::vector<unsigned char> data) {
-    return PyMarshal_ReadObjectFromString((char *)&(*data.begin()),
-                                          data.size());
-}
-
 PythonInterface::PythonInterface(logging::Logger &logger,
                                  render::Renderer &renderer)
     : logger(logger) {
@@ -75,11 +70,6 @@ PythonInterface::PythonInterface(logging::Logger &logger,
                          this->create_render_module(renderer));
     PyDict_SetItemString(this->global_scope, "logger",
                          this->create_logger_module(logger));
-
-    // PyObject *code = load_compiled_python();
-    // Py_DECREF(PyEval_EvalCode(code, this->global_scope, this->global_scope));
-    // Py_DECREF(code);
-    // exit(1);
 }
 
 PyObject *PythonInterface::create_render_module(render::Renderer &renderer) {
@@ -104,8 +94,17 @@ PythonInterface::~PythonInterface() { Py_Finalize(); }
 
 void PythonInterface::add_code(std::string py_source) {
     logger.debug("running python code segment...");
-    PyRun_StringFlags(py_source.c_str(), Py_file_input, this->global_scope,
-                      this->global_scope, nullptr);
+    Py_DECREF(PyRun_StringFlags(py_source.c_str(), Py_file_input,
+                                this->global_scope, this->global_scope,
+                                nullptr));
+}
+
+void PythonInterface::add_code(asset::Generic &py_code) {
+    logger.debug("running python code segment...");
+    PyObject *code = PyMarshal_ReadObjectFromString((char *)py_code.get_data(),
+                                                    py_code.size());
+    Py_DECREF(PyEval_EvalCode(code, this->global_scope, this->global_scope));
+    Py_DECREF(code);
 }
 
 std::map<std::string, PythonComponent> PythonInterface::load_components() {

@@ -1,0 +1,17 @@
+{
+    "this": "is",
+    "generic": {
+        "json": [
+            "data",
+            "and",
+            "1"
+        ],
+        "think": null,
+        "that": "this.data"
+    },
+    "should": [
+        "work",
+        false,
+        3.14
+    ]
+}

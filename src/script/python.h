@@ -5,6 +5,7 @@
 #include "../core/core.h"
 #include "../render/render.h"
 #include "../util/logging.h"
+#include "../asset/asset.h"
 
 #include <Python.h>
 
@@ -38,6 +39,7 @@ namespace python {
         PythonInterface(logging::Logger &logger, render::Renderer &renderer);
         ~PythonInterface();
         void add_code(std::string py_source);
+        void add_code(asset::Generic &py_code);
         std::map<std::string, PythonComponent> load_components();
         void start_main();
         void print_error();

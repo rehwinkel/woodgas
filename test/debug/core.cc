@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "../core/core.h"
+#include <core/core.h>
 
 int main(int argc, char* argv[]) {
     core::Game game;

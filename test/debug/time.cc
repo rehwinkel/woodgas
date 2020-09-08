@@ -1,4 +1,4 @@
-#include "../util/timer.h"
+#include <util/timer.h>
 
 #include <iostream>
 

@@ -113,17 +113,5 @@ static PyMethodDef logger_methods[] = {
      "Logs all supplied objects to console with DEBUG log level."},
     {NULL, NULL, 0, NULL}};
 
-/*void set_log_level(LogLevel level);
-    void log(std::string message, LogLevel level);
-    std::ostream &log_stream(LogLevel level);
-    void debug(std::string message);
-    void info(std::string message);
-    void warn(std::string message);
-    void error(std::string message);
-    std::ostream &debug_stream();
-    std::ostream &info_stream();
-    std::ostream &warn_stream();
-    std::ostream &error_stream();*/
-
 static struct PyModuleDef logger_module = {PyModuleDef_HEAD_INIT, "logger",
                                            nullptr, -1, logger_methods};

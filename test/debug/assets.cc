@@ -1,4 +1,4 @@
-#include "../asset/asset.h"
+#include <asset/asset.h>
 
 #include <fstream>
 #include <nlohmann/json.hpp>

@@ -1,6 +1,6 @@
-#include "../render/render.h"
-#include "../script/python.h"
-#include "../asset/asset.h"
+#include <render/render.h>
+#include <script/python.h>
+#include <asset/asset.h>
 
 int main(int argc, char const *argv[]) {
     logging::Logger logger;

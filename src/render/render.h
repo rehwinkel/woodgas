@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include <array>
 
 typedef unsigned int GLuint;
 typedef int GLint;
@@ -26,8 +27,9 @@ namespace render {
     };
 
     class Transform3D {
-        float data[16];
-        void matrix_multiply(float *a, float *b);
+        std::array<float, 16> data;
+        void matrix_multiply(std::array<float, 16> &a,
+                             std::array<float, 16> &b);
 
        public:
         Transform3D();

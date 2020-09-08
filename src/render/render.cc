@@ -77,8 +77,9 @@ Texture::Texture(size_t width, size_t height, int components,
 Transform3D::Transform3D()
     : data{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1} {}
 
-void Transform3D::matrix_multiply(float *a, float *b) {
-    float out[16];
+void Transform3D::matrix_multiply(std::array<float, 16> &a,
+                                  std::array<float, 16> &b) {
+    std::array<float, 16> out;
     for (int row = 0; row < 4; row++) {
         for (int col = 0; col < 4; col++) {
             float sum = 0;
@@ -90,11 +91,11 @@ void Transform3D::matrix_multiply(float *a, float *b) {
             out[row * 4 + col] = sum;
         }
     }
-    std::memcpy(a, out, 16 * sizeof(float));
+    std::memcpy(a.data(), out.data(), 16 * sizeof(float));
 }
 
 Transform3D Transform3D::translate(float x, float y, float z) {
-    float tm[16] = {
+    std::array<float, 16> tm = {
         1, 0, 0, x, 0, 1, 0, y, 0, 0, 1, z, 0, 0, 0, 1,
     };
     this->matrix_multiply(this->data, tm);
@@ -104,7 +105,7 @@ Transform3D Transform3D::translate(float x, float y, float z) {
 Transform3D Transform3D::rotate_x(float x) {
     float c = std::cos(x);
     float s = std::sin(x);
-    float tm[16] = {
+    std::array<float, 16> tm = {
         1, 0, 0, 0, 0, c, -s, 0, 0, s, c, 0, 0, 0, 0, 1,
     };
     this->matrix_multiply(this->data, tm);
@@ -114,7 +115,7 @@ Transform3D Transform3D::rotate_x(float x) {
 Transform3D Transform3D::rotate_y(float y) {
     float c = std::cos(y);
     float s = std::sin(y);
-    float tm[16] = {
+    std::array<float, 16> tm = {
         c, 0, s, 0, 0, 1, 0, 0, -s, 0, c, 0, 0, 0, 0, 1,
     };
     this->matrix_multiply(this->data, tm);
@@ -124,7 +125,7 @@ Transform3D Transform3D::rotate_y(float y) {
 Transform3D Transform3D::rotate_z(float z) {
     float c = std::cos(z);
     float s = std::sin(z);
-    float tm[16] = {
+    std::array<float, 16> tm = {
         c, -s, 0, 0, s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
     };
     this->matrix_multiply(this->data, tm);
@@ -132,14 +133,14 @@ Transform3D Transform3D::rotate_z(float z) {
 }
 
 Transform3D Transform3D::scale(float x, float y, float z) {
-    float tm[16] = {
+    std::array<float, 16> tm = {
         x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1,
     };
     this->matrix_multiply(this->data, tm);
     return *this;
 }
 
-float *Transform3D::get_data() { return this->data; }
+float *Transform3D::get_data() { return this->data.data(); }
 
 GLuint Texture::get_texture() { return this->texture; }
 

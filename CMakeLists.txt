@@ -18,6 +18,11 @@ add_library(woodgas STATIC src/render/glad/glad.c src/render/render.cc src/input
 set_property(TARGET woodgas PROPERTY CXX_STANDARD 17)
 target_link_libraries(woodgas glfw z dl libsoundio_static ${PYTHON_LIBRARIES} nlohmann_json::nlohmann_json)
 
+add_executable(bundler src/bundler.cc)
+target_include_directories(bundler PUBLIC src/)
+set_property(TARGET bundler PROPERTY CXX_STANDARD 17)
+target_link_libraries(bundler woodgas)
+
 add_executable(render_debug test/debug/render.cc)
 target_include_directories(render_debug PUBLIC src/)
 set_property(TARGET render_debug PROPERTY CXX_STANDARD 17)

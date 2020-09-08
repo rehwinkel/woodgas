@@ -1,0 +1,11 @@
+{
+    "name": "bamana",
+    "messages": [
+        "oranges",
+        "apples"
+    ],
+    "never_compare": {
+        "source": "github",
+        "test": 3.14
+    }
+}

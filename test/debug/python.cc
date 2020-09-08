@@ -8,7 +8,7 @@ int main(int argc, char const *argv[]) {
     asset::Generic &script = assets.load_python("script.py");
     render::Window windex(640, 480, "Title of Window", logger);
     render::Renderer renderer(windex, logger);
-    python::PythonInterface py_if(logger, renderer);
+    python::PythonInterface py_if(logger, windex, renderer);
     py_if.add_code(script);
     /*
     py_if.add_code(R"py(

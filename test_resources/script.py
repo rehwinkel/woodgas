@@ -13,10 +13,11 @@ class MySecondPyComponent(Component):
         print("updaten")
 
 def main():
-    while True:
-        logger.set_log_level(logger.DEBUG)
-        logger.log(logger.ERROR, 1, 2, 3, sep="_")
-        logger.log(logger.WARN, locals())
-        logger.info("hey", "heya", 1, 2, 3)
-        logger.debug("hey", "heya", 1, 2, 3, sep = ", ")
+    ar = 640.0 / 480.0
+    render.upload_orthographic(-1 * ar, 1 * ar, -1, 1, 0.1, 100)
+    while render.is_window_open():
+        render.poll_inputs()
+        render.clear()
+        render.upload_transform(0.5, 0.3, 0, 0, 0, 0.3, 1, 1, 1)
         render.draw_quad()
+        render.swap_buffers()

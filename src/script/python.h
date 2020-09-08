@@ -32,11 +32,13 @@ namespace python {
         PyObject *global_scope;
         PyObject *component_clazz;
         logging::Logger &logger;
-        PyObject *create_render_module(render::Renderer &renderer);
+        PyObject *create_render_module(render::Window &window,
+                                       render::Renderer &renderer);
         PyObject *create_logger_module(logging::Logger &renderer);
 
        public:
-        PythonInterface(logging::Logger &logger, render::Renderer &renderer);
+        PythonInterface(logging::Logger &logger, render::Window &window,
+                        render::Renderer &renderer);
         ~PythonInterface();
         void add_code(std::string py_source);
         void add_code(asset::Generic &py_code);

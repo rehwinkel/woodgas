@@ -48,6 +48,7 @@ std::vector<unsigned char> python::compile_python(logging::Logger &logger,
 }
 
 PythonInterface::PythonInterface(logging::Logger &logger,
+                                 render::Window &window,
                                  render::Renderer &renderer)
     : logger(logger) {
     logger.debug("initializing python...");
@@ -67,15 +68,18 @@ PythonInterface::PythonInterface(logging::Logger &logger,
     this->component_clazz =
         PyDict_GetItemString(this->global_scope, "Component");
     PyDict_SetItemString(this->global_scope, "render",
-                         this->create_render_module(renderer));
+                         this->create_render_module(window, renderer));
     PyDict_SetItemString(this->global_scope, "logger",
                          this->create_logger_module(logger));
 }
 
-PyObject *PythonInterface::create_render_module(render::Renderer &renderer) {
+PyObject *PythonInterface::create_render_module(render::Window &window,
+                                                render::Renderer &renderer) {
     PyObject *module = PyModule_Create(&render_module);
     PyDict_SetItemString(PyModule_GetDict(module), "p_render",
                          PyCapsule_New(&renderer, nullptr, nullptr));
+    PyDict_SetItemString(PyModule_GetDict(module), "p_window",
+                         PyCapsule_New(&window, nullptr, nullptr));
     return module;
 }
 

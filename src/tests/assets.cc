@@ -1,9 +1,9 @@
 #include "../asset/asset.h"
 
 #include <fstream>
-#include <rapidjson/document.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/stringbuffer.h>
+#include <nlohmann/json.hpp>
+
+using namespace nlohmann;
 
 int main(int argc, char const *argv[]) {
     logging::Logger logger;
@@ -12,10 +12,11 @@ int main(int argc, char const *argv[]) {
     asset::Generic &scriptasset = assets.load_python("script.py");
     asset::Generic &scriptasset2 = assets.load_python("script2.py");
     asset::Generic &generic = assets.load_generic("generic.json");
-    
-    rapidjson::Document d;
+
     std::string text = generic.get_string();
-    d.Parse(text.c_str());
+    auto parsed = json::parse(text);
+    logger.info_stream() << "JSON:\n"
+                         << parsed.dump(2) << logging::COLOR_RS << std::endl;
 
     std::vector<unsigned char> data = assets.store_assets();
     asset::Assets assets2(logger, "../test_resources", &(*data.begin()),

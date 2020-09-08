@@ -4,6 +4,3 @@
 [submodule "libsoundio"]
 	path = libsoundio
 	url = https://github.com/andrewrk/libsoundio.git
-[submodule "rapidjson"]
-	path = rapidjson
-	url = https://github.com/Tencent/rapidjson.git

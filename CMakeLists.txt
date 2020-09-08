@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(woodgas)
 
 set(PY_VERSION 3.8)
+find_package(nlohmann_json 3.2.0 REQUIRED)
 find_package(PythonLibs ${PY_VERSION} REQUIRED)
 
 include_directories(stb/)
@@ -13,7 +14,7 @@ add_subdirectory(libsoundio)
 
 add_library(woodgas STATIC src/render/glad/glad.c src/render/render.cc src/input/input.cc src/util/timer.cc src/util/logging.cc src/asset/asset.cc src/script/python.cc src/core/core.cc)
 set_property(TARGET woodgas PROPERTY CXX_STANDARD 17)
-target_link_libraries(woodgas glfw z dl libsoundio_static ${PYTHON_LIBRARIES})
+target_link_libraries(woodgas glfw z dl libsoundio_static ${PYTHON_LIBRARIES} nlohmann_json::nlohmann_json)
 
 add_executable(render_test src/tests/render.cc)
 set_property(TARGET render_test PROPERTY CXX_STANDARD 17)

@@ -87,7 +87,7 @@ Image &Assets::load_image(std::string resource) {
             std::filesystem::path(this->path) / std::filesystem::path(resource);
         int width, height, components;
         unsigned char *data =
-            stbi_load(file_path.c_str(), &width, &height, &components, 4);
+            stbi_load((char*)file_path.c_str(), &width, &height, &components, 4);
         if (!data) {
             throw std::runtime_error("failed to load image: " + resource);
         }
@@ -179,7 +179,7 @@ std::vector<unsigned char> Assets::compress(std::vector<unsigned char> &data) {
     std::vector<unsigned char> compressed;
     compressed.resize(sizeof(size_t) + compressBound(uncompressed_length));
     size_t out_length;
-    compress2(&(*compressed.begin()) + sizeof(size_t), &out_length,
+    compress2(&(*compressed.begin()) + sizeof(size_t), (uLongf *)&out_length,
               &(*data.begin()), uncompressed_length, Z_BEST_COMPRESSION);
     compressed.resize(sizeof(size_t) + out_length);
     std::memcpy(&(*compressed.begin()), &uncompressed_length, sizeof(size_t));
@@ -192,7 +192,7 @@ std::vector<unsigned char> Assets::decompress(
     size_t uncompressed_length;
     std::memcpy(&uncompressed_length, &(*compressed.begin()), sizeof(size_t));
     data.resize(uncompressed_length);
-    if (uncompress(&(*data.begin()), &uncompressed_length,
+    if (uncompress(&(*data.begin()), (uLongf *)&uncompressed_length,
                    &(*compressed.begin()) + sizeof(size_t),
                    compressed.size() - sizeof(size_t)) != Z_OK) {
         throw std::runtime_error("failed to decompress data");

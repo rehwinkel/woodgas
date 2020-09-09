@@ -4,3 +4,12 @@
 [submodule "libsoundio"]
 	path = libsoundio
 	url = https://github.com/andrewrk/libsoundio.git
+[submodule "glfw"]
+	path = glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "json"]
+	path = json
+	url = https://github.com/nlohmann/json.git
+[submodule "zlib"]
+	path = zlib
+	url = https://github.com/madler/zlib.git

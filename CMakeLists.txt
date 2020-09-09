@@ -3,24 +3,25 @@ project(woodgas)
 
 enable_testing()
 
+set(JSON_BuildTests OFF)
 set(PY_VERSION 3.8)
 find_package(PythonLibs ${PY_VERSION} REQUIRED)
 
 include_directories(stb/)
-include_directories(libsoundio/)
+# include_directories(libsoundio/)
 include_directories(json/include/)
 include_directories(glfw/include/)
-include_directories(zlib/)
+include_directories(zlib/ ${CMAKE_CURRENT_BINARY_DIR}/zlib/)
 include_directories(${PYTHON_INCLUDE_DIRS})
 
-add_subdirectory(libsoundio)
+# add_subdirectory(libsoundio)
 add_subdirectory(json)
 add_subdirectory(glfw)
 add_subdirectory(zlib)
 
 add_library(woodgas STATIC src/render/glad/glad.c src/render/render.cc src/input/input.cc src/util/timer.cc src/util/logging.cc src/asset/asset.cc src/script/python.cc src/core/core.cc)
 set_property(TARGET woodgas PROPERTY CXX_STANDARD 17)
-target_link_libraries(woodgas glfw zlibstatic dl libsoundio_static ${PYTHON_LIBRARIES} nlohmann_json)
+target_link_libraries(woodgas glfw zlibstatic ${CMAKE_DL_LIBS} ${PYTHON_LIBRARIES} nlohmann_json)
 
 add_executable(bundler src/bundler.cc)
 target_include_directories(bundler PUBLIC src/)

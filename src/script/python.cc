@@ -145,7 +145,8 @@ void PythonInterface::start_main() {
     logger.debug("starting python main...");
     PyObject *main = PyDict_GetItemString(this->global_scope, "main");
     if (main) {
-        PyObject_Call(main, Py_None, Py_None);
+        PyObject_Call(main, PyTuple_New(0), nullptr);
+        logger.debug("done running python main.");
     } else {
         logger.error("missing python main");
     }

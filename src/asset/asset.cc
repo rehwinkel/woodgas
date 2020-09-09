@@ -102,13 +102,13 @@ Image &Assets::load_image(std::string resource) {
 std::vector<unsigned char> asset::read_file_to_vector(std::ifstream &in_file,
                                                       std::string &resource) {
     if (!in_file.is_open()) {
-        throw std::runtime_error("failed to load generic data: " + resource);
+        throw std::runtime_error("failed to load file to vector: " + resource);
     }
     std::streamsize size = in_file.tellg();
     in_file.seekg(0, std::ios::beg);
     std::vector<unsigned char> data(size);
     if (!in_file.read((char *)data.data(), size)) {
-        throw std::runtime_error("failed to load generic data: " + resource);
+        throw std::runtime_error("failed to load file to vector: " + resource);
     }
     in_file.close();
     return std::move(data);

@@ -52,15 +52,15 @@ static PyObject *render_upload_transform(PyObject *self, PyObject *args[],
     if (length != 9) {
         return nullptr;
     }
-    double x = PyFloat_AsDouble(args[0]);
-    double y = PyFloat_AsDouble(args[1]);
-    double z = PyFloat_AsDouble(args[2]);
-    double rx = PyFloat_AsDouble(args[3]);
-    double ry = PyFloat_AsDouble(args[4]);
-    double rz = PyFloat_AsDouble(args[5]);
-    double sx = PyFloat_AsDouble(args[6]);
-    double sy = PyFloat_AsDouble(args[7]);
-    double sz = PyFloat_AsDouble(args[8]);
+    float x = (float) PyFloat_AsDouble(args[0]);
+    float y = (float) PyFloat_AsDouble(args[1]);
+    float z = (float) PyFloat_AsDouble(args[2]);
+    float rx = (float) PyFloat_AsDouble(args[3]);
+    float ry = (float) PyFloat_AsDouble(args[4]);
+    float rz = (float) PyFloat_AsDouble(args[5]);
+    float sx = (float) PyFloat_AsDouble(args[6]);
+    float sy = (float) PyFloat_AsDouble(args[7]);
+    float sz = (float) PyFloat_AsDouble(args[8]);
     render::Renderer &renderer = get_renderer(self);
     renderer.upload_transform(render::Transform3D()
                                   .translate(x, y, z)
@@ -76,12 +76,12 @@ static PyObject *render_upload_ortho(PyObject *self, PyObject *args[],
     if (length != 6) {
         return nullptr;
     }
-    double left = PyFloat_AsDouble(args[0]);
-    double right = PyFloat_AsDouble(args[1]);
-    double bottom = PyFloat_AsDouble(args[2]);
-    double top = PyFloat_AsDouble(args[3]);
-    double near = PyFloat_AsDouble(args[4]);
-    double far = PyFloat_AsDouble(args[5]);
+    float left = (float) PyFloat_AsDouble(args[0]);
+    float right = (float) PyFloat_AsDouble(args[1]);
+    float bottom = (float) PyFloat_AsDouble(args[2]);
+    float top = (float) PyFloat_AsDouble(args[3]);
+    float near = (float) PyFloat_AsDouble(args[4]);
+    float far = (float) PyFloat_AsDouble(args[5]);
     render::Renderer &renderer = get_renderer(self);
     renderer.upload_ortho(left, right, bottom, top, near, far);
     Py_RETURN_NONE;

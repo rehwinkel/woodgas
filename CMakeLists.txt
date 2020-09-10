@@ -8,13 +8,11 @@ set(PY_VERSION 3.8)
 find_package(PythonLibs ${PY_VERSION} REQUIRED)
 
 include_directories(stb/)
-# include_directories(libsoundio/)
 include_directories(json/include/)
 include_directories(glfw/include/)
 include_directories(zlib/ ${CMAKE_CURRENT_BINARY_DIR}/zlib/)
 include_directories(${PYTHON_INCLUDE_DIRS})
 
-# add_subdirectory(libsoundio)
 add_subdirectory(json)
 add_subdirectory(glfw)
 add_subdirectory(zlib)

@@ -10,7 +10,10 @@ using namespace python;
 
 PythonComponent::PythonComponent(PyObject *init_function,
                                  PyObject *update_function)
-    : init_function_obj(init_function), update_function_obj(update_function) {}
+    : init_function_obj(init_function), update_function_obj(update_function) {
+    Py_INCREF(init_function);
+    Py_INCREF(update_function);
+}
 
 PythonComponent::~PythonComponent() {
     Py_DECREF(this->init_function_obj);

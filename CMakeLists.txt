@@ -26,6 +26,8 @@ target_include_directories(bundler PUBLIC src/)
 set_property(TARGET bundler PROPERTY CXX_STANDARD 17)
 target_link_libraries(bundler woodgas)
 
+add_subdirectory(examples)
+
 add_executable(render_debug test/debug/render.cc)
 target_include_directories(render_debug PUBLIC src/)
 set_property(TARGET render_debug PROPERTY CXX_STANDARD 17)

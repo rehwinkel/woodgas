@@ -1,8 +1,10 @@
 {
     "C_Cpp.default.includePath": [
-        "stb/",
-        "rapidjson/include/",
-        "/usr/include/python3.8/",
+        "stb/", 
+        "src/",
+        "json/include/",
+        "glfw/include/",
+        "/usr/include/python3.8/"
     ],
     "files.associations": {
         "*.olvn": "json",
@@ -85,5 +87,6 @@
         "regex": "cpp",
         "shared_mutex": "cpp"
     },
-    "C_Cpp.default.cppStandard": "c++17"
+    "C_Cpp.default.cppStandard": "c++17",
+    "C_Cpp.clang_format_style": "{ BasedOnStyle: Google, IndentWidth: 4, SortIncludes: false, FixNamespaceComments: false, NamespaceIndentation: All } "
 }

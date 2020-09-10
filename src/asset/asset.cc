@@ -46,8 +46,8 @@ Assets::Assets(logging::Logger &logger, std::string path)
     logger.debug("creating new empty assets...");
 }
 
-Assets::Assets(logging::Logger &logger, std::string path, void *data_start,
-               void *data_end)
+Assets::Assets(logging::Logger &logger, std::string path,
+               const void *data_start, const void *data_end)
     : path(path), logger(logger) {
     logger.debug("creating assets from binary data...");
     std::vector<unsigned char> compressed((unsigned char *)data_start,
@@ -77,17 +77,19 @@ Assets::Assets(logging::Logger &logger, std::string path, void *data_start,
 Image &Assets::load_image(std::string resource) {
     this->logger.debug_stream() << "loading image resource '" << resource
                                 << "'..." << logging::COLOR_RS << std::endl;
-    if (this->resource_to_index_map.find(resource) !=
-        this->resource_to_index_map.end()) {
-        throw std::runtime_error("duplicate resource found: " + resource);
+    auto resource_to_index_it = this->resource_to_index_map.find(resource);
+    size_t index;
+    if (resource_to_index_it != this->resource_to_index_map.end()) {
+        auto *pair = &(*resource_to_index_it);
+        index = pair->second;
     } else {
-        size_t index = this->next_asset_index++;
+        index = this->next_asset_index++;
         this->resource_to_index_map[resource] = index;
         std::filesystem::path file_path =
             std::filesystem::path(this->path) / std::filesystem::path(resource);
         int width, height, components;
-        unsigned char *data =
-            stbi_load((char*)file_path.c_str(), &width, &height, &components, 4);
+        unsigned char *data = stbi_load((char *)file_path.c_str(), &width,
+                                        &height, &components, 4);
         if (!data) {
             throw std::runtime_error("failed to load image: " + resource);
         }
@@ -95,8 +97,8 @@ Image &Assets::load_image(std::string resource) {
             Image(width, height, 4,
                   std::vector<unsigned char>{data, data + width * height * 4});
         stbi_image_free(data);
-        return this->images[index];
     }
+    return this->images[index];
 }
 
 std::vector<unsigned char> asset::read_file_to_vector(std::ifstream &in_file,
@@ -117,11 +119,13 @@ std::vector<unsigned char> asset::read_file_to_vector(std::ifstream &in_file,
 Generic &Assets::load_generic(std::string resource) {
     this->logger.debug_stream() << "loading generic resource '" << resource
                                 << "'..." << logging::COLOR_RS << std::endl;
-    if (this->resource_to_index_map.find(resource) !=
-        this->resource_to_index_map.end()) {
-        throw std::runtime_error("duplicate resource found: " + resource);
+    auto resource_to_index_it = this->resource_to_index_map.find(resource);
+    size_t index;
+    if (resource_to_index_it != this->resource_to_index_map.end()) {
+        auto *pair = &(*resource_to_index_it);
+        index = pair->second;
     } else {
-        size_t index = this->next_asset_index++;
+        index = this->next_asset_index++;
         this->resource_to_index_map[resource] = index;
         std::filesystem::path file_path =
             std::filesystem::path(this->path) / std::filesystem::path(resource);
@@ -129,35 +133,39 @@ Generic &Assets::load_generic(std::string resource) {
         std::vector<unsigned char> data =
             read_file_to_vector(in_file, resource);
         this->generics[index] = Generic(std::move(data));
-        return this->generics[index];
     }
+    return this->generics[index];
 }
 
 Generic &Assets::load_vector(std::string resource,
                              std::vector<unsigned char> data) {
     this->logger.debug_stream() << "loading vector resource '" << resource
                                 << "'..." << logging::COLOR_RS << std::endl;
-    if (this->resource_to_index_map.find(resource) !=
-        this->resource_to_index_map.end()) {
-        throw std::runtime_error("duplicate resource found: " + resource);
+    auto resource_to_index_it = this->resource_to_index_map.find(resource);
+    size_t index;
+    if (resource_to_index_it != this->resource_to_index_map.end()) {
+        auto *pair = &(*resource_to_index_it);
+        index = pair->second;
     } else {
-        size_t index = this->next_asset_index++;
+        index = this->next_asset_index++;
         this->resource_to_index_map[resource] = index;
         std::filesystem::path file_path =
             std::filesystem::path(this->path) / std::filesystem::path(resource);
         this->generics[index] = Generic(std::move(data));
-        return this->generics[index];
     }
+    return this->generics[index];
 }
 
 Generic &Assets::load_python(std::string resource) {
     this->logger.debug_stream() << "loading python resource '" << resource
                                 << "'..." << logging::COLOR_RS << std::endl;
-    if (this->resource_to_index_map.find(resource) !=
-        this->resource_to_index_map.end()) {
-        throw std::runtime_error("duplicate resource found: " + resource);
+    auto resource_to_index_it = this->resource_to_index_map.find(resource);
+    size_t index;
+    if (resource_to_index_it != this->resource_to_index_map.end()) {
+        auto *pair = &(*resource_to_index_it);
+        index = pair->second;
     } else {
-        size_t index = this->next_asset_index++;
+        index = this->next_asset_index++;
         this->resource_to_index_map[resource] = index;
         std::filesystem::path file_path =
             std::filesystem::path(this->path) / std::filesystem::path(resource);
@@ -170,8 +178,8 @@ Generic &Assets::load_python(std::string resource) {
             python::compile_python(this->logger, script, resource);
 
         this->generics[index] = Generic(std::move(compiled_data));
-        return this->generics[index];
     }
+    return this->generics[index];
 }
 
 std::vector<unsigned char> Assets::compress(std::vector<unsigned char> &data) {

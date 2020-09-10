@@ -13,14 +13,18 @@ static bool endsWith(const std::string& str, const std::string& suffix) {
 int main(int argc, char const* argv[]) {
     if (argc == 2) {
         std::string resource_folder_name(argv[1]);
+        std::filesystem::path resource_path =
+            std::filesystem::absolute(resource_folder_name);
         logging::Logger logger;
+        logger.debug_stream()
+            << resource_path << logging::COLOR_RS << std::endl;
         asset::Assets assets(logger, resource_folder_name);
-        for (const auto& path : std::filesystem::recursive_directory_iterator(
-                 resource_folder_name)) {
+        for (const auto& path :
+             std::filesystem::recursive_directory_iterator(resource_path)) {
             if (!path.is_directory()) {
                 std::string filename = path.path().string();
                 std::string resource_name =
-                    filename.substr(resource_folder_name.length() + 1);
+                    filename.substr(resource_path.string().length());
                 if (endsWith(resource_name, ".py")) {
                     assets.load_python(resource_name);
                 } else if (endsWith(resource_name, ".png")) {

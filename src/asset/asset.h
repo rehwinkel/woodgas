@@ -52,8 +52,8 @@ namespace asset {
 
        public:
         Assets(logging::Logger &logger, std::string path);
-        Assets(logging::Logger &logger, std::string path, void *data_start,
-               void *data_end);
+        Assets(logging::Logger &logger, std::string path,
+               const void *data_start, const void *data_end);
         Image &load_image(std::string resource);
         Generic &load_generic(std::string resource);
         Generic &load_python(std::string resource);

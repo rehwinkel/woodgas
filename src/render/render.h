@@ -12,6 +12,17 @@ typedef unsigned int GLuint;
 typedef int GLint;
 
 namespace render {
+    class Color {
+        float r, g, b, a;
+
+       public:
+        Color(float r, float g, float b, float a);
+        float red();
+        float green();
+        float blue();
+        float alpha();
+    };
+
     class Window {
         void *window;
         logging::Logger &logger;
@@ -96,6 +107,7 @@ namespace render {
 
     class Renderer {
         Mesh quad;
+        Color background;
         QuadShader quad_shader;
         logging::Logger &logger;
 
@@ -106,6 +118,8 @@ namespace render {
         void upload_transform(Transform3D &tf);
         void upload_ortho(float left, float right, float bottom, float top,
                           float near, float far);
+        void set_background_color(Color &&color);
+        Color &get_background_color();
         void bind_texture(Texture &tex);
         void draw_quad();
     };

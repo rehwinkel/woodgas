@@ -9,6 +9,13 @@
 
 using namespace render;
 
+Color::Color(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {}
+
+float Color::red() { return this->r; }
+float Color::green() { return this->g; }
+float Color::blue() { return this->b; }
+float Color::alpha() { return this->a; }
+
 Window::Window(int width, int height, std::string title,
                logging::Logger &logger)
     : logger(logger) {
@@ -253,7 +260,8 @@ void QuadShader::set_ortho(float *data) {
     this->stop();
 }
 
-Renderer::Renderer(Window &window, logging::Logger &logger) : logger(logger) {
+Renderer::Renderer(Window &window, logging::Logger &logger)
+    : logger(logger), background(0, 0, 0, 0) {
     logger.debug("creating quad mesh...");
     this->quad = Mesh(
         std::vector<float>{
@@ -273,14 +281,12 @@ Renderer::Renderer(Window &window, logging::Logger &logger) : logger(logger) {
         std::vector<float>{0, 0, 0, 1, 1, 1, 1, 0},
         std::vector<int>{0, 1, 2, 2, 3, 0});
     logger.debug("creating quad shader...");
+    this->set_background_color({1.0, 1.0, 1.0, 1.0});
     this->quad_shader = QuadShader();
     this->quad_shader.load_uniforms();
 }
 
-void Renderer::clear() {
-    glClearColor(1.0, 0.0, 1.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
+void Renderer::clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
 
 void Renderer::upload_transform(Transform3D &&tf) {
     this->quad_shader.set_transform(tf.get_data());
@@ -332,3 +338,10 @@ void Renderer::draw_quad() {
     glBindVertexArray(0);
     this->quad_shader.stop();
 }
+
+void Renderer::set_background_color(Color &&color) {
+    this->background = color;
+    glClearColor(color.red(), color.green(), color.blue(), color.alpha());
+}
+
+Color &Renderer::get_background_color() { return this->background; }

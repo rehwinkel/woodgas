@@ -6,8 +6,11 @@
 #include <vector>
 #include <map>
 #include <string_view>
+#include <nlohmann/json.hpp>
 
 #include "../util/logging.h"
+
+using json = nlohmann::json;
 
 namespace asset {
     std::vector<unsigned char> read_file_to_vector(std::ifstream &in_file,
@@ -38,6 +41,7 @@ namespace asset {
         size_t size();
         std::string_view get_string_view();
         std::string get_string();
+        json get_json();
     };
 
     class Assets {

@@ -41,6 +41,8 @@ std::string Generic::get_string() {
     return std::string((char *)this->get_data(), this->size());
 }
 
+json Generic::get_json() { return json::parse((char *)this->get_data()); }
+
 Assets::Assets(logging::Logger &logger, std::string path)
     : path(path), next_asset_index(0), logger(logger) {
     logger.debug("creating new empty assets...");

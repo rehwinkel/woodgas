@@ -65,6 +65,13 @@ void Window::swap_buffers() { glfwSwapBuffers((GLFWwindow *)this->window); }
 
 void *Window::_get_window_ptr() { return this->window; }
 
+AtlasEntry::AtlasEntry(size_t width, size_t height, int components,
+                       const char *img_data)
+    : width(width),
+      height(height),
+      components(components),
+      img_data(img_data) {}
+
 Texture::Texture(size_t width, size_t height, int components,
                  const char *img_data, bool interpolate) {
     // TODO: use components
@@ -80,6 +87,48 @@ Texture::Texture(size_t width, size_t height, int components,
                  GL_UNSIGNED_BYTE, img_data);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+Texture Texture::create_atlas(std::vector<AtlasEntry> entries,
+                              bool interpolate) {
+    if (entries.size() == 0) {
+        throw std::runtime_error("can't create atlas with 0 textures");
+    }
+    size_t entry_width = entries[0].width;
+    size_t entry_height = entries[0].height;
+    size_t entry_components = entries[0].components;
+    size_t atlas_size = std::ceil(std::sqrt(entries.size()));
+    size_t texture_width = entry_width * atlas_size;
+    size_t texture_height = entry_height * atlas_size;
+    char *texture_data =
+        (char *)std::malloc(texture_width * texture_height * entry_components);
+    for (size_t i = 0; i < entries.size(); i++) {
+        AtlasEntry &entry = entries[i];
+        if (entry.width != entry_width || entry.height != entry_height ||
+            entry.components != entry_components) {
+            throw std::runtime_error(
+                "all atlas textures must have same dimensions");
+        }
+        size_t x = i % atlas_size;
+        size_t y = i / atlas_size;
+        for (size_t row = 0; row < entry_height; row++) {
+            size_t dst_offset =
+                ((row + y * entry_height) * texture_width + x * entry_width) *
+                entry_components;
+            size_t src_offset = row * entry_width * entry_components;
+            std::memcpy(texture_data + dst_offset, entry.img_data + src_offset,
+                        entry_width * entry_components);
+        }
+    }
+    return Texture(texture_width, texture_height, entry_components,
+                   texture_data, interpolate);
+}
+
+TextureRef::TextureRef(Texture texture)
+    : texture(texture), size(std::nullopt), offset(std::nullopt) {}
+
+TextureRef::TextureRef(Texture texture, size_t x, size_t y, size_t width,
+                       size_t height)
+    : texture(texture), size({width, height}), offset({x, y}) {}
 
 Transform3D::Transform3D()
     : data{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1} {}
@@ -317,6 +366,13 @@ void Renderer::upload_ortho(float left, float right, float bottom, float top,
         1,
     };
     this->quad_shader.set_ortho(data);
+}
+
+void Renderer::bind_texture(TextureRef &tex) {
+    // TODO upload atlas offset
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex.texture.get_texture());
 }
 
 void Renderer::bind_texture(Texture &tex) {

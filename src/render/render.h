@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <optional>
 
 typedef unsigned int GLuint;
 typedef int GLint;
@@ -52,14 +53,36 @@ namespace render {
         float *get_data();
     };
 
+    class AtlasEntry {
+       public:
+        size_t width;
+        size_t height;
+        int components;
+        const char *img_data;
+        AtlasEntry(size_t width, size_t height, int components,
+                   const char *img_data);
+    };
+
     class Texture {
         GLuint texture;
 
        public:
         Texture(size_t width, size_t height, int components,
                 const char *img_data, bool interpolate = false);
+        static Texture create_atlas(std::vector<AtlasEntry> entires,
+                                    bool interpolate = false);
         GLuint get_texture();
         void cleanup();
+    };
+
+    class TextureRef {
+       public:
+        Texture texture;
+        std::optional<std::pair<size_t, size_t>> size;
+        std::optional<std::pair<size_t, size_t>> offset;
+        TextureRef(Texture texture);
+        TextureRef(Texture texture, size_t x, size_t y, size_t width,
+                   size_t height);
     };
 
     class Mesh {
@@ -120,6 +143,7 @@ namespace render {
                           float near, float far);
         void set_background_color(Color &&color);
         Color &get_background_color();
+        void bind_texture(TextureRef &tex);
         void bind_texture(Texture &tex);
         void draw_quad();
     };

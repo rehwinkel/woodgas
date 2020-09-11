@@ -28,5 +28,6 @@ int main(int argc, char const *argv[]) {
 
         window.swap_buffers();
     }
+    tex.cleanup();
     return 0;
 }

@@ -5,13 +5,16 @@
 
 using namespace nlohmann;
 
-int main(int argc, char const *argv[]) {
+int main() {
     logging::Logger logger;
     asset::Assets assets(logger, "../test_resources");
     asset::Image &img = assets.load_image("test.png");
     asset::Generic &scriptasset = assets.load_python("script.py");
     asset::Generic &scriptasset2 = assets.load_python("script2.py");
     asset::Generic &generic = assets.load_generic("generic.json");
+    (void)(img);
+    (void)(scriptasset);
+    (void)(scriptasset2);
 
     std::string text = generic.get_string();
     auto parsed = json::parse(text);

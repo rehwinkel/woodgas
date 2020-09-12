@@ -103,7 +103,7 @@ int main(int argc, char const* argv[]) {
         }
         std::vector<unsigned char> data = assets.store_assets();
         std::ofstream out_file("assets.c");
-        out_file << "const char assets[" << data.size() << "] = {";
+        out_file << "const unsigned char assets[" << data.size() << "] = {";
         for (size_t i = 0; i < data.size(); i++) {
             out_file << "0x" << std::uppercase << std::hex << (int)data[i];
             if (i + 1 < data.size()) out_file << ", ";

@@ -1,6 +1,6 @@
 #include <util/logging.h>
 
-int main(int argc, char const *argv[]) {
+int main() {
     logging::Logger logger;
     logger.set_log_level(logging::LogLevel::DEBUG);
     logger.debug("tötet die käfer");

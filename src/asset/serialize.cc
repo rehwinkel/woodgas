@@ -74,6 +74,6 @@ namespace serialize {
         array_data.resize(size);
         std::memcpy(&(*array_data.begin()), (char*)*data, array_data.size());
         *((char**)data) += size;
-        return std::move(array_data);
+        return array_data;
     }
 }

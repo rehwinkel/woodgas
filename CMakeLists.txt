@@ -17,6 +17,13 @@ add_subdirectory(json)
 add_subdirectory(glfw)
 add_subdirectory(zlib)
 
+
+if (MSVC)
+    add_compile_options(/W4 /WX)
+else()
+    add_compile_options(-Wall -Wextra -Wconversion)
+endif()
+
 add_library(woodgas STATIC src/render/glad/glad.c src/render/render.cc src/input/input.cc src/util/timer.cc src/util/logging.cc src/asset/asset.cc src/script/python.cc src/core/core.cc)
 set_property(TARGET woodgas PROPERTY CXX_STANDARD 17)
 target_link_libraries(woodgas glfw zlibstatic ${CMAKE_DL_LIBS} ${PYTHON_LIBRARIES} nlohmann_json)

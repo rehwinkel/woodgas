@@ -83,8 +83,27 @@ Texture::Texture(size_t width, size_t height, int components,
                     interpolate ? GL_LINEAR : GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
                     interpolate ? GL_LINEAR : GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, img_data);
+    GLenum color_format;
+    switch (components) {
+        case 4:
+            color_format = GL_RGBA;
+            break;
+        case 3:
+            color_format = GL_RGB;
+            break;
+        case 2:
+            color_format = GL_RG;
+            break;
+        case 1:
+            color_format = GL_RED;
+            break;
+        default:
+            throw std::runtime_error(
+                "impossible number of image color channels: " +
+                std::to_string(components));
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)width, (GLsizei)height, 0,
+                 color_format, GL_UNSIGNED_BYTE, img_data);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -95,8 +114,8 @@ Texture Texture::create_atlas(std::vector<AtlasEntry> entries,
     }
     size_t entry_width = entries[0].width;
     size_t entry_height = entries[0].height;
-    size_t entry_components = entries[0].components;
-    size_t atlas_size = std::ceil(std::sqrt(entries.size()));
+    int entry_components = entries[0].components;
+    size_t atlas_size = (size_t)std::ceil(std::sqrt(entries.size()));
     size_t texture_width = entry_width * atlas_size;
     size_t texture_height = entry_height * atlas_size;
     char *texture_data =
@@ -209,7 +228,7 @@ Mesh::Mesh() {}
 
 Mesh::Mesh(std::vector<float> vertices, std::vector<float> uvs,
            std::vector<int> indices)
-    : length(indices.size()) {
+    : length((GLsizei)indices.size()) {
     glGenVertexArrays(1, &this->vao);
     glBindVertexArray(this->vao);
 
@@ -239,7 +258,7 @@ GLuint Mesh::get_vao() { return this->vao; }
 
 GLuint Mesh::get_indices() { return this->index_vbo; }
 
-size_t Mesh::get_length() { return this->length; }
+GLsizei Mesh::get_length() { return this->length; }
 
 void Mesh::cleanup() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -310,7 +329,8 @@ void QuadShader::set_ortho(float *data) {
 }
 
 Renderer::Renderer(Window &window, logging::Logger &logger)
-    : logger(logger), background(0, 0, 0, 0) {
+    : background(0, 0, 0, 0), logger(logger) {
+    (void)(window);  // TODO: use window?
     logger.debug("creating quad mesh...");
     this->quad = Mesh(
         std::vector<float>{

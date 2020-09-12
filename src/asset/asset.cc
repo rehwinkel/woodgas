@@ -44,19 +44,18 @@ std::string Generic::get_string() {
 json Generic::get_json() { return json::parse((char *)this->get_data()); }
 
 Assets::Assets(logging::Logger &logger, std::string path)
-    : path(path), next_asset_index(0), logger(logger) {
+    : logger(logger), path(path), next_asset_index(0) {
     logger.debug("creating new empty assets...");
 }
 
 Assets::Assets(logging::Logger &logger, std::string path,
                const void *data_start, const void *data_end)
-    : path(path), logger(logger) {
+    : logger(logger), path(path) {
     logger.debug("creating assets from binary data...");
     std::vector<unsigned char> compressed((unsigned char *)data_start,
                                           (unsigned char *)data_end);
     std::vector<unsigned char> data = this->decompress(compressed);
     void *dest = &(*data.begin());
-    void *start = dest;
     this->next_asset_index = serialize::read_value<size_t>(&dest);
     size_t resource_to_index_map_size = serialize::read_value<size_t>(&dest);
     for (size_t i = 0; i < resource_to_index_map_size; i++) {
@@ -88,7 +87,7 @@ std::vector<unsigned char> asset::read_file_to_vector(std::ifstream &in_file,
         throw std::runtime_error("failed to load file to vector: " + resource);
     }
     in_file.close();
-    return std::move(data);
+    return data;
 }
 
 std::pair<size_t, std::optional<std::vector<unsigned char>>> Assets::load_file(
@@ -119,8 +118,8 @@ Image &Assets::load_image(std::string resource) {
     if (data_opt) {
         int width, height, components;
         unsigned char *data =
-            stbi_load_from_memory(data_opt->data(), data_opt->size(), &width,
-                                  &height, &components, 4);
+            stbi_load_from_memory(data_opt->data(), (int)data_opt->size(),
+                                  &width, &height, &components, 4);
         if (!data) {
             logger.error_stream()
                 << "failed to load image (reason: " << stbi_failure_reason()
@@ -131,9 +130,8 @@ Image &Assets::load_image(std::string resource) {
             Image(width, height, 4,
                   std::vector<unsigned char>{data, data + width * height * 4});
         stbi_image_free(data);
-    } else {
-        return this->images[index];
     }
+    return this->images[index];
 }
 
 Generic &Assets::load_generic(std::string resource) {
@@ -141,9 +139,8 @@ Generic &Assets::load_generic(std::string resource) {
     if (data_opt) {
         std::vector<unsigned char> data = std::move(data_opt.value());
         this->generics[index] = Generic(std::move(data));
-    } else {
-        return this->generics[index];
     }
+    return this->generics[index];
 }
 
 Generic &Assets::load_python(std::string resource) {
@@ -153,9 +150,8 @@ Generic &Assets::load_python(std::string resource) {
         std::vector<unsigned char> compiled_data =
             python::compile_python(this->logger, script, resource);
         this->generics[index] = Generic(std::move(compiled_data));
-    } else {
-        return this->generics[index];
     }
+    return this->generics[index];
 }
 
 std::vector<unsigned char> Assets::compress(std::vector<unsigned char> &data) {
@@ -167,7 +163,7 @@ std::vector<unsigned char> Assets::compress(std::vector<unsigned char> &data) {
               &(*data.begin()), uncompressed_length, Z_BEST_COMPRESSION);
     compressed.resize(sizeof(size_t) + out_length);
     std::memcpy(compressed.data(), &uncompressed_length, sizeof(size_t));
-    return std::move(compressed);
+    return compressed;
 }
 
 std::vector<unsigned char> Assets::decompress(
@@ -181,7 +177,7 @@ std::vector<unsigned char> Assets::decompress(
                    compressed.size() - sizeof(size_t)) != Z_OK) {
         throw std::runtime_error("failed to decompress data");
     }
-    return std::move(data);
+    return data;
 }
 
 std::vector<unsigned char> Assets::store_assets() {
@@ -203,7 +199,6 @@ std::vector<unsigned char> Assets::store_assets() {
     std::vector<unsigned char> data;
     data.resize(size);
     void *dest = &(*data.begin());
-    void *start = dest;
     serialize::write_value(&dest, this->next_asset_index);
     serialize::write_value(&dest, this->resource_to_index_map.size());
     for (auto &entry : this->resource_to_index_map) {

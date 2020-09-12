@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-int main(int argc, char const *argv[]) {
+int main() {
     logging::Logger logger;
     render::Window win(640, 480, "æ", logger);
     timer::Time t(win);

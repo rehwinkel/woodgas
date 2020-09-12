@@ -4,7 +4,9 @@
 
 using namespace timer;
 
-Time::Time(render::Window &window) : prev_frame_time(glfwGetTime()) {}
+Time::Time(render::Window &window) : prev_frame_time(glfwGetTime()) {
+    (void)(window);
+}
 
 double Time::current() { return glfwGetTime(); }
 

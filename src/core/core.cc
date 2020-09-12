@@ -10,7 +10,7 @@ void Component::set_active(bool state) { this->enabled = state; }
 
 Component::~Component() {}
 
-Entity::Entity(size_t id) : parent(nullptr), id(id) {}
+Entity::Entity(size_t id) : id(id), parent(nullptr) {}
 
 bool Entity::is_enabled() { return this->enabled; }
 

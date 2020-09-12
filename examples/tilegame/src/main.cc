@@ -31,7 +31,7 @@ bool TilemapComponent::is_unique() { return true; }
 
 void TilemapComponent::init() {}
 
-int main(int argc, char const *argv[]) {
+int main() {
     logging::Logger logger;
     asset::Assets game_assets(logger, "res", assets, assets + assets_len);
     render::Window window(1280, 720, "tilegame", logger);
@@ -39,7 +39,7 @@ int main(int argc, char const *argv[]) {
     input::Input inputs(window, logger);
     timer::Time time(window);
 
-    asset::Generic &data = game_assets.load_generic("test.json");
+    // asset::Generic &data = game_assets.load_generic("test.json");
     asset::Image &dirt = game_assets.load_image("tiles/dirt.png");
     asset::Image &grass = game_assets.load_image("tiles/grass.png");
     asset::Image &stone = game_assets.load_image("tiles/stone.png");
@@ -70,8 +70,8 @@ int main(int argc, char const *argv[]) {
          {gravel.get_width(), gravel.get_height(), gravel.get_components(),
           (char *)gravel.get_data()}});
 
-    float ar = 1280.0 / 720.0;
-    renderer.upload_ortho(-1 * ar, 1 * ar, -1, 1, 0.1, 100);
+    float ar = 1280.0f / 720.0f;
+    renderer.upload_ortho(-1 * ar, 1 * ar, -1, 1, 0.1f, 100);
 
     while (window.is_open()) {
         window.poll_inputs();

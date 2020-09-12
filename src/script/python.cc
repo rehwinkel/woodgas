@@ -47,7 +47,7 @@ std::vector<unsigned char> python::compile_python(logging::Logger &logger,
     Py_DECREF(encoded_code);
     Py_DECREF(code);
     Py_Finalize();
-    return std::move(data);
+    return data;
 }
 
 PythonInterface::PythonInterface(logging::Logger &logger,
@@ -132,7 +132,7 @@ std::map<std::string, PythonComponent> PythonInterface::load_components() {
         }
     }
     Py_DECREF(vals);
-    return std::move(components);
+    return components;
 }
 
 void PythonInterface::print_error() {

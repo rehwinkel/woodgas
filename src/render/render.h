@@ -11,6 +11,7 @@
 
 typedef unsigned int GLuint;
 typedef int GLint;
+typedef int GLsizei;
 
 namespace render {
     class Color {
@@ -90,7 +91,7 @@ namespace render {
         GLuint vertex_vbo;
         GLuint uv_vbo;
         GLuint index_vbo;
-        size_t length;
+        GLsizei length;
 
        public:
         Mesh();
@@ -98,7 +99,7 @@ namespace render {
              std::vector<int> indices);
         GLuint get_vao();
         GLuint get_indices();
-        size_t get_length();
+        GLsizei get_length();
         void cleanup();
     };
 

@@ -2,7 +2,7 @@
 #include <script/python.h>
 #include <asset/asset.h>
 
-int main(int argc, char const *argv[]) {
+int main() {
     logging::Logger logger;
     asset::Assets assets(logger, "../test_resources");
     asset::Generic &script = assets.load_python("script.py");

@@ -76,33 +76,6 @@ Assets::Assets(logging::Logger &logger, std::string path,
     }
 }
 
-Image &Assets::load_image(std::string resource) {
-    this->logger.debug_stream() << "loading image resource '" << resource
-                                << "'..." << logging::COLOR_RS << std::endl;
-    auto resource_to_index_it = this->resource_to_index_map.find(resource);
-    size_t index;
-    if (resource_to_index_it != this->resource_to_index_map.end()) {
-        auto *pair = &(*resource_to_index_it);
-        index = pair->second;
-    } else {
-        index = this->next_asset_index++;
-        this->resource_to_index_map[resource] = index;
-        std::filesystem::path file_path =
-            std::filesystem::path(this->path) / std::filesystem::path(resource);
-        int width, height, components;
-        unsigned char *data = stbi_load((char *)file_path.c_str(), &width,
-                                        &height, &components, 4);
-        if (!data) {
-            throw std::runtime_error("failed to load image: " + resource);
-        }
-        this->images[index] =
-            Image(width, height, 4,
-                  std::vector<unsigned char>{data, data + width * height * 4});
-        stbi_image_free(data);
-    }
-    return this->images[index];
-}
-
 std::vector<unsigned char> asset::read_file_to_vector(std::ifstream &in_file,
                                                       std::string &resource) {
     if (!in_file.is_open()) {
@@ -118,81 +91,82 @@ std::vector<unsigned char> asset::read_file_to_vector(std::ifstream &in_file,
     return std::move(data);
 }
 
-Generic &Assets::load_generic(std::string resource) {
-    this->logger.debug_stream() << "loading generic resource '" << resource
-                                << "'..." << logging::COLOR_RS << std::endl;
+std::pair<size_t, std::optional<std::vector<unsigned char>>> Assets::load_file(
+    std::string resource, std::string &&resource_type_name) {
+    std::replace(resource.begin(), resource.end(), '\\', '/');
+    std::filesystem::path file_path = std::filesystem::absolute(
+        std::filesystem::path(this->path) / std::filesystem::path(resource));
+    this->logger.debug_stream()
+        << "loading " << resource_type_name << " resource '" << resource
+        << "'..." << logging::COLOR_RS << std::endl;
     auto resource_to_index_it = this->resource_to_index_map.find(resource);
-    size_t index;
     if (resource_to_index_it != this->resource_to_index_map.end()) {
         auto *pair = &(*resource_to_index_it);
-        index = pair->second;
+        size_t index = pair->second;
+        return {index, std::nullopt};
     } else {
-        index = this->next_asset_index++;
+        size_t index = this->next_asset_index++;
         this->resource_to_index_map[resource] = index;
-        std::filesystem::path file_path =
-            std::filesystem::path(this->path) / std::filesystem::path(resource);
         std::ifstream in_file(file_path, std::ios::binary | std::ios::ate);
-        std::vector<unsigned char> data =
+        std::vector<unsigned char> raw_data =
             read_file_to_vector(in_file, resource);
-        this->generics[index] = Generic(std::move(data));
+        return {index, raw_data};
     }
-    return this->generics[index];
 }
 
-Generic &Assets::load_vector(std::string resource,
-                             std::vector<unsigned char> data) {
-    this->logger.debug_stream() << "loading vector resource '" << resource
-                                << "'..." << logging::COLOR_RS << std::endl;
-    auto resource_to_index_it = this->resource_to_index_map.find(resource);
-    size_t index;
-    if (resource_to_index_it != this->resource_to_index_map.end()) {
-        auto *pair = &(*resource_to_index_it);
-        index = pair->second;
+Image &Assets::load_image(std::string resource) {
+    auto [index, data_opt] = this->load_file(resource, "image");
+    if (data_opt) {
+        int width, height, components;
+        unsigned char *data =
+            stbi_load_from_memory(data_opt->data(), data_opt->size(), &width,
+                                  &height, &components, 4);
+        if (!data) {
+            logger.error_stream()
+                << "failed to load image (reason: " << stbi_failure_reason()
+                << "): " << resource << logging::COLOR_RS << std::endl;
+            throw std::runtime_error("failed to load image");
+        }
+        this->images[index] =
+            Image(width, height, 4,
+                  std::vector<unsigned char>{data, data + width * height * 4});
+        stbi_image_free(data);
     } else {
-        index = this->next_asset_index++;
-        this->resource_to_index_map[resource] = index;
-        std::filesystem::path file_path =
-            std::filesystem::path(this->path) / std::filesystem::path(resource);
-        this->generics[index] = Generic(std::move(data));
+        return this->images[index];
     }
-    return this->generics[index];
+}
+
+Generic &Assets::load_generic(std::string resource) {
+    auto [index, data_opt] = this->load_file(resource, "generic");
+    if (data_opt) {
+        std::vector<unsigned char> data = std::move(data_opt.value());
+        this->generics[index] = Generic(std::move(data));
+    } else {
+        return this->generics[index];
+    }
 }
 
 Generic &Assets::load_python(std::string resource) {
-    this->logger.debug_stream() << "loading python resource '" << resource
-                                << "'..." << logging::COLOR_RS << std::endl;
-    auto resource_to_index_it = this->resource_to_index_map.find(resource);
-    size_t index;
-    if (resource_to_index_it != this->resource_to_index_map.end()) {
-        auto *pair = &(*resource_to_index_it);
-        index = pair->second;
-    } else {
-        index = this->next_asset_index++;
-        this->resource_to_index_map[resource] = index;
-        std::filesystem::path file_path =
-            std::filesystem::path(this->path) / std::filesystem::path(resource);
-
-        std::ifstream in_file(file_path, std::ios::binary | std::ios::ate);
-        std::vector<unsigned char> script_raw =
-            asset::read_file_to_vector(in_file, resource);
-        std::string script(script_raw.begin(), script_raw.end());
+    auto [index, data_opt] = this->load_file(resource, "python");
+    if (data_opt) {
+        std::string script(data_opt->begin(), data_opt->end());
         std::vector<unsigned char> compiled_data =
             python::compile_python(this->logger, script, resource);
-
         this->generics[index] = Generic(std::move(compiled_data));
+    } else {
+        return this->generics[index];
     }
-    return this->generics[index];
 }
 
 std::vector<unsigned char> Assets::compress(std::vector<unsigned char> &data) {
     size_t uncompressed_length = data.size();
     std::vector<unsigned char> compressed;
     compressed.resize(sizeof(size_t) + compressBound(uncompressed_length));
-    size_t out_length;
-    compress2(&(*compressed.begin()) + sizeof(size_t), (uLongf *)&out_length,
+    uLongf out_length;
+    compress2(&(*compressed.begin()) + sizeof(size_t), &out_length,
               &(*data.begin()), uncompressed_length, Z_BEST_COMPRESSION);
     compressed.resize(sizeof(size_t) + out_length);
-    std::memcpy(&(*compressed.begin()), &uncompressed_length, sizeof(size_t));
+    std::memcpy(compressed.data(), &uncompressed_length, sizeof(size_t));
     return std::move(compressed);
 }
 

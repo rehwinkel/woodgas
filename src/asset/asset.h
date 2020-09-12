@@ -7,6 +7,7 @@
 #include <map>
 #include <string_view>
 #include <nlohmann/json.hpp>
+#include <optional>
 
 #include "../util/logging.h"
 
@@ -53,6 +54,8 @@ namespace asset {
         std::map<size_t, Generic> generics;
         std::vector<unsigned char> compress(std::vector<unsigned char> &data);
         std::vector<unsigned char> decompress(std::vector<unsigned char> &data);
+        std::pair<size_t, std::optional<std::vector<unsigned char>>> load_file(
+            std::string resource, std::string &&resource_type_name);
 
        public:
         Assets(logging::Logger &logger, std::string path);
@@ -61,8 +64,6 @@ namespace asset {
         Image &load_image(std::string resource);
         Generic &load_generic(std::string resource);
         Generic &load_python(std::string resource);
-        Generic &load_vector(std::string resource,
-                             std::vector<unsigned char> data);
         void deallocate();
         std::vector<unsigned char> store_assets();
     };

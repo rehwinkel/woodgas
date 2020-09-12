@@ -157,10 +157,11 @@ Generic &Assets::load_python(std::string resource) {
 std::vector<unsigned char> Assets::compress(std::vector<unsigned char> &data) {
     size_t uncompressed_length = data.size();
     std::vector<unsigned char> compressed;
-    compressed.resize(sizeof(size_t) + compressBound(uncompressed_length));
+    compressed.resize(sizeof(size_t) +
+                      compressBound((uLong)uncompressed_length));
     uLongf out_length;
     compress2(&(*compressed.begin()) + sizeof(size_t), &out_length,
-              &(*data.begin()), uncompressed_length, Z_BEST_COMPRESSION);
+              &(*data.begin()), (uLong)uncompressed_length, Z_BEST_COMPRESSION);
     compressed.resize(sizeof(size_t) + out_length);
     std::memcpy(compressed.data(), &uncompressed_length, sizeof(size_t));
     return compressed;
@@ -174,7 +175,7 @@ std::vector<unsigned char> Assets::decompress(
     data.resize(uncompressed_length);
     if (uncompress(&(*data.begin()), (uLongf *)&uncompressed_length,
                    &(*compressed.begin()) + sizeof(size_t),
-                   compressed.size() - sizeof(size_t)) != Z_OK) {
+                   (uLong)(compressed.size() - sizeof(size_t))) != Z_OK) {
         throw std::runtime_error("failed to decompress data");
     }
     return data;

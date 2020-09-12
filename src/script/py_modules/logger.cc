@@ -10,7 +10,7 @@ logging::Logger &get_logger(PyObject *module_obj) {
     return *logger;
 }
 
-void do_logging(int start_index, int elements, logging::LogLevel log_level,
+void do_logging(int start_index, ssize_t elements, logging::LogLevel log_level,
                 PyObject *self, PyObject *args, PyObject *kwargs) {
     const char *sep = " ";
     if (kwargs) {
@@ -21,7 +21,7 @@ void do_logging(int start_index, int elements, logging::LogLevel log_level,
     }
     logging::Logger &logger = get_logger(self);
     std::ostream &stream = logger.log_stream(log_level);
-    for (int i = start_index; i < elements; i++) {
+    for (ssize_t i = start_index; i < elements; i++) {
         PyObject *repr = PyObject_Repr(PyTuple_GetItem(args, i));
         stream << PyUnicode_AsUTF8(repr);
         Py_DECREF(repr);
@@ -33,7 +33,7 @@ void do_logging(int start_index, int elements, logging::LogLevel log_level,
 }
 
 static PyObject *logger_log(PyObject *self, PyObject *args, PyObject *kwargs) {
-    int tsz = PyTuple_Size(args);
+    ssize_t tsz = PyTuple_Size(args);
     if (tsz < 2) {
         PyErr_Format(PyExc_TypeError,
                      "function takes at least 2 arguments (%zd given)", tsz);
@@ -47,7 +47,7 @@ static PyObject *logger_log(PyObject *self, PyObject *args, PyObject *kwargs) {
 
 static PyObject *logger_error(PyObject *self, PyObject *args,
                               PyObject *kwargs) {
-    int tsz = PyTuple_Size(args);
+    ssize_t tsz = PyTuple_Size(args);
     if (tsz < 1) {
         PyErr_Format(PyExc_TypeError,
                      "function takes at least 1 argument (%zd given)", tsz);
@@ -58,7 +58,7 @@ static PyObject *logger_error(PyObject *self, PyObject *args,
 }
 
 static PyObject *logger_warn(PyObject *self, PyObject *args, PyObject *kwargs) {
-    int tsz = PyTuple_Size(args);
+    ssize_t tsz = PyTuple_Size(args);
     if (tsz < 1) {
         PyErr_Format(PyExc_TypeError,
                      "function takes at least 1 argument (%zd given)", tsz);
@@ -69,7 +69,7 @@ static PyObject *logger_warn(PyObject *self, PyObject *args, PyObject *kwargs) {
 }
 
 static PyObject *logger_info(PyObject *self, PyObject *args, PyObject *kwargs) {
-    int tsz = PyTuple_Size(args);
+    ssize_t tsz = PyTuple_Size(args);
     if (tsz < 1) {
         PyErr_Format(PyExc_TypeError,
                      "function takes at least 1 argument (%zd given)", tsz);
@@ -81,7 +81,7 @@ static PyObject *logger_info(PyObject *self, PyObject *args, PyObject *kwargs) {
 
 static PyObject *logger_debug(PyObject *self, PyObject *args,
                               PyObject *kwargs) {
-    int tsz = PyTuple_Size(args);
+    ssize_t tsz = PyTuple_Size(args);
     if (tsz < 1) {
         PyErr_Format(PyExc_TypeError,
                      "function takes at least 1 argument (%zd given)", tsz);

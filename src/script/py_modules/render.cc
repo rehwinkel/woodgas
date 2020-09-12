@@ -19,30 +19,35 @@ render::Window &get_window(PyObject *module_obj) {
 }
 
 static PyObject *render_draw_quad(PyObject *self, PyObject *args) {
+    (void)(args);
     render::Renderer &renderer = get_renderer(self);
     renderer.draw_quad();
     Py_RETURN_NONE;
 }
 
 static PyObject *render_clear(PyObject *self, PyObject *args) {
+    (void)(args);
     render::Renderer &renderer = get_renderer(self);
     renderer.clear();
     Py_RETURN_NONE;
 }
 
 static PyObject *render_swap_buffers(PyObject *self, PyObject *args) {
+    (void)(args);
     render::Window &window = get_window(self);
     window.swap_buffers();
     Py_RETURN_NONE;
 }
 
 static PyObject *render_poll_inputs(PyObject *self, PyObject *args) {
+    (void)(args);
     render::Window &window = get_window(self);
     window.poll_inputs();
     Py_RETURN_NONE;
 }
 
 static PyObject *render_is_window_open(PyObject *self, PyObject *args) {
+    (void)(args);
     render::Window &window = get_window(self);
     return PyBool_FromLong(window.is_open());
 }

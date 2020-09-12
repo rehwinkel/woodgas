@@ -58,15 +58,14 @@ PythonInterface::PythonInterface(logging::Logger &logger,
     Py_Initialize();
     PyObject *module = PyImport_AddModule("__main__");
     this->global_scope = PyModule_GetDict(module);
-    PyObject *run_result;
-    if (!(run_result = PyRun_StringFlags(
-              "class Component:\n\tdef init():\n\t\tpass\n\tdef "
-              "update():\n\t\tpass",
-              Py_file_input, this->global_scope, this->global_scope,
-              nullptr))) {
+    PyObject *run_result = PyRun_StringFlags(
+        "class Component:\n\tdef init():\n\t\tpass\n\tdef "
+        "update():\n\t\tpass",
+        Py_file_input, this->global_scope, this->global_scope, nullptr);
+    if (!run_result) {
         throw std::runtime_error(
             "failed to create component base python class");
-    };
+    }
     Py_DECREF(run_result);
     this->component_clazz =
         PyDict_GetItemString(this->global_scope, "Component");

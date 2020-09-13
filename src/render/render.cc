@@ -107,8 +107,8 @@ Texture::Texture(size_t width, size_t height, int components,
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Texture Texture::create_atlas(std::vector<AtlasEntry> entries,
-                              bool interpolate) {
+std::vector<TextureRef> Texture::create_atlas(std::vector<AtlasEntry> entries,
+                                              bool interpolate) {
     if (entries.size() == 0) {
         throw std::runtime_error("can't create atlas with 0 textures");
     }
@@ -138,8 +138,15 @@ Texture Texture::create_atlas(std::vector<AtlasEntry> entries,
                         entry_width * entry_components);
         }
     }
-    return Texture(texture_width, texture_height, entry_components,
-                   texture_data, interpolate);
+    Texture tex(texture_width, texture_height, entry_components, texture_data,
+                interpolate);
+    std::vector<TextureRef> refs;
+    for (size_t i = 0; i < entries.size(); i++) {
+        size_t x = i % atlas_size;
+        size_t y = i / atlas_size;
+        refs.push_back(render::TextureRef(tex, x, y, atlas_size, atlas_size));
+    }
+    return refs;
 }
 
 TextureRef::TextureRef(Texture texture)

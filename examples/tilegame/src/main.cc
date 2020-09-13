@@ -17,22 +17,16 @@ class Tile {
     bool operator==(const Tile &other) const;
 };
 
-template <class T>
-inline void hash_combine(std::size_t &seed, const T &v) {
-    std::hash<T> hasher;
-    seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-}
-
 struct TileHash {
     size_t operator()(const Tile &k) const {
         size_t hash = (size_t)k.texture.texture.get_texture();
         if (k.texture.size) {
-            hash_combine(hash, k.texture.size.value().first);
-            hash_combine(hash, k.texture.size.value().second);
+            math::hash_combine(hash, k.texture.size.value().first);
+            math::hash_combine(hash, k.texture.size.value().second);
         }
         if (k.texture.offset) {
-            hash_combine(hash, k.texture.offset.value().first);
-            hash_combine(hash, k.texture.offset.value().second);
+            math::hash_combine(hash, k.texture.offset.value().first);
+            math::hash_combine(hash, k.texture.offset.value().second);
         }
         return hash;
     }
@@ -198,7 +192,7 @@ int main() {
     asset::Image &redstone = game_assets.load_image("tiles/redstone.png");
     asset::Image &gravel = game_assets.load_image("tiles/gravel.png");
 
-    render::Texture blocks = render::Texture::create_atlas(
+    std::vector<render::TextureRef> blocks = render::Texture::create_atlas(
         {{dirt.get_width(), dirt.get_height(), dirt.get_components(),
           (char *)dirt.get_data()},
          {grass.get_width(), grass.get_height(), grass.get_components(),
@@ -219,9 +213,9 @@ int main() {
           (char *)gravel.get_data()}});
 
     TilemapComponent tilemap(16, 0.1f);
-    Tile dirt_tile(render::TextureRef(blocks, 0, 0, 3, 3));
-    Tile grass_tile(render::TextureRef(blocks, 1, 0, 3, 3));
-    Tile stone_tile(render::TextureRef(blocks, 2, 0, 3, 3));
+    Tile dirt_tile(blocks[0]);
+    Tile grass_tile(blocks[1]);
+    Tile stone_tile(blocks[2]);
     tilemap.add_tile_type(dirt_tile);
     tilemap.add_tile_type(grass_tile);
     tilemap.add_tile_type(stone_tile);

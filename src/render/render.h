@@ -64,14 +64,16 @@ namespace render {
                    const char *img_data);
     };
 
+    class TextureRef;
+
     class Texture {
         GLuint texture;
 
        public:
         Texture(size_t width, size_t height, int components,
                 const char *img_data, bool interpolate = false);
-        static Texture create_atlas(std::vector<AtlasEntry> entires,
-                                    bool interpolate = false);
+        static std::vector<TextureRef> create_atlas(
+            std::vector<AtlasEntry> entires, bool interpolate = false);
         GLuint get_texture() const;
         void cleanup();
     };

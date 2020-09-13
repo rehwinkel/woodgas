@@ -321,6 +321,9 @@ void QuadShader::load_uniforms() {
     glLinkProgram(this->program);
     this->transform_uni = glGetUniformLocation(this->program, "transform");
     this->ortho_uni = glGetUniformLocation(this->program, "ortho");
+    this->atlas_uni = glGetUniformLocation(this->program, "atlas");
+    this->start();
+    glUniform4f(this->atlas_uni, 0, 0, 1, 1);
 }
 
 void QuadShader::set_transform(float *data) {
@@ -332,6 +335,14 @@ void QuadShader::set_transform(float *data) {
 void QuadShader::set_ortho(float *data) {
     this->start();
     glUniformMatrix4fv(this->ortho_uni, 1, true, data);
+    this->stop();
+}
+
+void QuadShader::set_atlas(size_t x, size_t y, size_t w, size_t h) {
+    this->start();
+    float tw = 1.0f / (float)w;
+    float th = 1.0f / (float)h;
+    glUniform4f(this->atlas_uni, tw * (float)x, th * (float)y, tw, th);
     this->stop();
 }
 
@@ -396,8 +407,11 @@ void Renderer::upload_ortho(float left, float right, float bottom, float top,
 }
 
 void Renderer::bind_texture(TextureRef &tex) {
-    // TODO upload atlas offset
-
+    if (tex.offset && tex.size) {
+        this->quad_shader.set_atlas(
+            tex.offset.value().first, tex.offset.value().second,
+            tex.size.value().first, tex.size.value().second);
+    }
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex.texture.get_texture());
 }

@@ -122,12 +122,14 @@ namespace render {
     class QuadShader : public Shader {
         GLint transform_uni;
         GLint ortho_uni;
+        GLint atlas_uni;
 
        public:
         QuadShader();
         void load_uniforms();
         void set_transform(float *data);
         void set_ortho(float *data);
+        void set_atlas(size_t x, size_t y, size_t w, size_t h);
     };
 
     class Renderer {

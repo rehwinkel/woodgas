@@ -222,13 +222,13 @@ int main() {
     tilemap.add_tile_type(grass_tile);
 
     tilemap.set_tile(0, 0, dirt_tile);
-    tilemap.set_tile(1, 0, dirt_tile);
+    tilemap.set_tile(1, 0, grass_tile);
     tilemap.set_tile(2, 0, dirt_tile);
-    tilemap.set_tile(0, 1, dirt_tile);
+    tilemap.set_tile(0, 1, grass_tile);
     tilemap.set_tile(1, 1, dirt_tile);
-    tilemap.set_tile(2, 1, dirt_tile);
+    tilemap.set_tile(2, 1, grass_tile);
     tilemap.set_tile(0, 2, dirt_tile);
-    tilemap.set_tile(1, 2, dirt_tile);
+    tilemap.set_tile(1, 2, grass_tile);
     tilemap.set_tile(2, 2, dirt_tile);
     tilemap.set_tile(20, 20, dirt_tile);
 

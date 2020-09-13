@@ -20,11 +20,11 @@ PythonComponent::~PythonComponent() {
     Py_DECREF(this->update_function_obj);
 }
 
-void PythonComponent::update() {
+void PythonComponent::update(core::Interface &interface) {
     PyObject_Call(this->update_function_obj, PyTuple_New(0), nullptr);
 }
 
-void PythonComponent::init() {
+void PythonComponent::init(core::Interface &interface) {
     PyObject_Call(this->init_function_obj, PyTuple_New(0), nullptr);
 }
 

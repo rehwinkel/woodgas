@@ -72,7 +72,7 @@ namespace render {
                 const char *img_data, bool interpolate = false);
         static Texture create_atlas(std::vector<AtlasEntry> entires,
                                     bool interpolate = false);
-        GLuint get_texture();
+        GLuint get_texture() const;
         void cleanup();
     };
 
@@ -84,6 +84,7 @@ namespace render {
         TextureRef(Texture texture);
         TextureRef(Texture texture, size_t x, size_t y, size_t width,
                    size_t height);
+        bool operator==(const TextureRef &other) const;
     };
 
     class Mesh {

@@ -149,6 +149,13 @@ TextureRef::TextureRef(Texture texture, size_t x, size_t y, size_t width,
                        size_t height)
     : texture(texture), size({width, height}), offset({x, y}) {}
 
+bool TextureRef::operator==(const TextureRef &other) const {
+    if (this->texture.get_texture() != other.texture.get_texture()) {
+        return false;
+    }
+    return this->offset == other.offset && this->size == other.size;
+}
+
 Transform3D::Transform3D()
     : data{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1} {}
 
@@ -217,7 +224,7 @@ Transform3D Transform3D::scale(float x, float y, float z) {
 
 float *Transform3D::get_data() { return this->data.data(); }
 
-GLuint Texture::get_texture() { return this->texture; }
+GLuint Texture::get_texture() const { return this->texture; }
 
 void Texture::cleanup() {
     glBindTexture(GL_TEXTURE_2D, 0);

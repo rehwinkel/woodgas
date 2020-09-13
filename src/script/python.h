@@ -23,8 +23,8 @@ namespace python {
         PythonComponent(PyObject *init_function_obj,
                         PyObject *update_function_obj);
         virtual ~PythonComponent();
-        virtual void update();
-        virtual void init();
+        virtual void update(core::Interface &interface);
+        virtual void init(core::Interface &interface);
         virtual bool is_unique();
     };
 

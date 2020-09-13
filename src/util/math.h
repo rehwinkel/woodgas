@@ -1,5 +1,7 @@
 // header for various mathematical functions for convenience
 
+#pragma once
+
 #include <FastNoise.h>
 #include <random>
 

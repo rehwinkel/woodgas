@@ -4,7 +4,8 @@
         "src/",
         "json/include/",
         "glfw/include/",
-        "/usr/include/python3.8/"
+        "/usr/include/python3.8/",
+        "FastNoise/"
     ],
     "files.associations": {
         "*.olvn": "json",

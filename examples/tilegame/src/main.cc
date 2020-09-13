@@ -3,6 +3,7 @@
 #include <render/render.h>
 #include <input/input.h>
 #include <util/timer.h>
+#include <util/math.h>
 
 #include <unordered_map>
 
@@ -112,7 +113,8 @@ void TilemapChunk::render(TilemapComponent &tilemap, render::Renderer &renderer,
             Tile &tile_type = tilemap.get_tile_type(tile);
             renderer.upload_transform(
                 render::Transform3D()
-                    .translate(x * render_size, y * render_size, 0)
+                    .translate(render_size * (float)x, render_size * (float)y,
+                               0)
                     .scale(render_size, render_size, render_size));
             renderer.bind_texture(tile_type.texture);
             renderer.draw_quad();
@@ -218,19 +220,25 @@ int main() {
     TilemapComponent tilemap(16, 0.1f);
     Tile dirt_tile(render::TextureRef(blocks, 0, 0, 3, 3));
     Tile grass_tile(render::TextureRef(blocks, 1, 0, 3, 3));
+    Tile stone_tile(render::TextureRef(blocks, 2, 0, 3, 3));
     tilemap.add_tile_type(dirt_tile);
     tilemap.add_tile_type(grass_tile);
+    tilemap.add_tile_type(stone_tile);
 
-    tilemap.set_tile(0, 0, dirt_tile);
-    tilemap.set_tile(1, 0, grass_tile);
-    tilemap.set_tile(2, 0, dirt_tile);
-    tilemap.set_tile(0, 1, grass_tile);
-    tilemap.set_tile(1, 1, dirt_tile);
-    tilemap.set_tile(2, 1, grass_tile);
-    tilemap.set_tile(0, 2, dirt_tile);
-    tilemap.set_tile(1, 2, grass_tile);
-    tilemap.set_tile(2, 2, dirt_tile);
-    tilemap.set_tile(20, 20, dirt_tile);
+    math::SimplexNoise noise;
+    for (uint32_t i = 0; i < 100; i++) {
+        float val = (noise.get(0, (float)i) + 1.0f) * 6.0f;
+        uint32_t height = (uint32_t)val;
+        for (uint32_t y = 0; y < height; y++) {
+            if (y + 1 == height) {
+                tilemap.set_tile(i, y, grass_tile);
+            } else if (y > height - 4) {
+                tilemap.set_tile(i, y, dirt_tile);
+            } else {
+                tilemap.set_tile(i, y, stone_tile);
+            }
+        }
+    }
 
     core::Game game;
     core::Entity tilemap_entity = game.create_entity();

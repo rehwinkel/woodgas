@@ -2,13 +2,24 @@
 
 using namespace core;
 
-Interface::Interface() : renderer(nullptr) {}
+Interface::Interface() : logger(nullptr), renderer(nullptr) {}
 
-Interface::Interface(render::Renderer& renderer) : renderer(&renderer) {}
+Interface::Interface(logging::Logger& logger)
+    : logger(&logger), renderer(nullptr) {}
+
+Interface::Interface(render::Renderer& renderer)
+    : logger(nullptr), renderer(&renderer) {}
+
+Interface::Interface(logging::Logger& logger, render::Renderer& renderer)
+    : logger(&logger), renderer(&renderer) {}
 
 render::Renderer& Interface::get_renderer() { return *this->renderer; }
 
 bool Interface::has_renderer() { return this->renderer; }
+
+logging::Logger& Interface::get_logger() { return *this->logger; }
+
+bool Interface::has_logger() { return this->logger; }
 
 Component::Component() : enabled(true) {}
 

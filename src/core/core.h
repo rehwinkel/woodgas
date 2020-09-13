@@ -10,13 +10,18 @@
 
 namespace core {
     class Interface {
+        logging::Logger* logger;
         render::Renderer* renderer;
 
        public:
         Interface();
+        Interface(logging::Logger& logger);
         Interface(render::Renderer& renderer);
+        Interface(logging::Logger& logger, render::Renderer& renderer);
         render::Renderer& get_renderer();
         bool has_renderer();
+        logging::Logger& get_logger();
+        bool has_logger();
     };
 
     class Component {

@@ -5,10 +5,10 @@
 #include <zlib.h>
 #include <system_error>
 
-#ifdef __linux__
-#include <filesystem>
-#else
+#ifdef __MACOS__
 #include <experimental/filesystem>
+#else
+#include <filesystem>
 #endif
 
 #include <cstring>

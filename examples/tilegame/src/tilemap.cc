@@ -36,9 +36,9 @@ void TilemapChunk::render(TilemapComponent &tilemap, render::Renderer &renderer,
             Tile &tile_type = tilemap.get_tile_type(tile);
             renderer.upload_transform(
                 render::Transform3D()
-                    .translate(render_size * (float)x, render_size * (float)y,
-                               0)
-                    .translate(-1.73f, -0.95f, 0)
+                    .translate(render_size * ((float)x + 0.5f),
+                               render_size * ((float)y + 0.5f), 0)
+                    .translate(-16.0f / 9.0f, -1, 0)
                     .scale(render_size, render_size, render_size));
             renderer.bind_texture(tile_type.texture);
             renderer.draw_quad();

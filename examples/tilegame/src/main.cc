@@ -49,7 +49,7 @@ int main() {
          {gravel.get_width(), gravel.get_height(), gravel.get_components(),
           (char *)gravel.get_data()}});
 
-    tilemap::TilemapComponent tilemap_comp(16, 0.1f);
+    tilemap::TilemapComponent tilemap_comp(32, 0.05f);
     tilemap::Tile dirt_tile(blocks[0]);
     tilemap::Tile grass_tile(blocks[1]);
     tilemap::Tile stone_tile(blocks[2]);
@@ -57,9 +57,9 @@ int main() {
     tilemap_comp.add_tile_type(grass_tile);
     tilemap_comp.add_tile_type(stone_tile);
 
-    math::SimplexNoise noise(45246);
-    for (uint32_t i = 0; i < 100; i++) {
-        float val = (noise.get(0, (float)i * 3.0f) + 1.0f) * 12.0f;
+    math::SimplexNoise noise(12345);
+    for (uint32_t i = 0; i < 80; i++) {
+        float val = (noise.get(0, (float)i * 3.0f) + 1.0f) * 20.0f;
         uint32_t height = (uint32_t)val;
         for (uint32_t y = 0; y < height; y++) {
             if (y + 1 == height) {

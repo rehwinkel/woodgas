@@ -2,6 +2,25 @@
 
 using namespace core;
 
+Interface::Interface() : logger(nullptr), renderer(nullptr) {}
+
+Interface::Interface(logging::Logger& logger)
+    : logger(&logger), renderer(nullptr) {}
+
+Interface::Interface(render::Renderer& renderer)
+    : logger(nullptr), renderer(&renderer) {}
+
+Interface::Interface(logging::Logger& logger, render::Renderer& renderer)
+    : logger(&logger), renderer(&renderer) {}
+
+render::Renderer& Interface::get_renderer() { return *this->renderer; }
+
+bool Interface::has_renderer() { return this->renderer; }
+
+logging::Logger& Interface::get_logger() { return *this->logger; }
+
+bool Interface::has_logger() { return this->logger; }
+
 Component::Component() : enabled(true) {}
 
 bool Component::is_enabled() { return this->enabled; }
@@ -73,6 +92,28 @@ void Entity::add_component(std::unique_ptr<Component> component) {
     }
 }
 
+void Entity::init(Interface& interface) {
+    for (auto& components : this->components) {
+        for (auto& component : components.second) {
+            component->init(interface);
+        }
+    }
+    for (auto& child : this->children) {
+        child.second.init(interface);
+    }
+}
+
+void Entity::update(Interface& interface) {
+    for (auto& components : this->components) {
+        for (auto& component : components.second) {
+            component->update(interface);
+        }
+    }
+    for (auto& child : this->children) {
+        child.second.update(interface);
+    }
+}
+
 Entity::~Entity() {}
 
 Game::Game() : entity_id(0) {}
@@ -107,6 +148,18 @@ void Game::destroy_entity(size_t entity_id) {
 
 bool Game::has_entity(size_t entity_id) noexcept {
     return this->entities.find(entity_id) != this->entities.end();
+}
+
+void Game::init(Interface& interface) {
+    for (auto& child : this->entities) {
+        child.second.init(interface);
+    }
+}
+
+void Game::update(Interface& interface) {
+    for (auto& child : this->entities) {
+        child.second.update(interface);
+    }
 }
 
 Game::~Game() {}

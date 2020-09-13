@@ -36,11 +36,14 @@ def main():
         render.draw_quad()
     )py");
     */
+
+    core::Interface interface;
+
     py_if.start_main();
     py_if.print_error();
     auto components = py_if.load_components();
     for (auto &component : components) {
-        component.second.init();
+        component.second.init(interface);
     }
     return 0;
 }

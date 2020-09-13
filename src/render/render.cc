@@ -149,6 +149,13 @@ TextureRef::TextureRef(Texture texture, size_t x, size_t y, size_t width,
                        size_t height)
     : texture(texture), size({width, height}), offset({x, y}) {}
 
+bool TextureRef::operator==(const TextureRef &other) const {
+    if (this->texture.get_texture() != other.texture.get_texture()) {
+        return false;
+    }
+    return this->offset == other.offset && this->size == other.size;
+}
+
 Transform3D::Transform3D()
     : data{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1} {}
 
@@ -217,7 +224,7 @@ Transform3D Transform3D::scale(float x, float y, float z) {
 
 float *Transform3D::get_data() { return this->data.data(); }
 
-GLuint Texture::get_texture() { return this->texture; }
+GLuint Texture::get_texture() const { return this->texture; }
 
 void Texture::cleanup() {
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -314,6 +321,9 @@ void QuadShader::load_uniforms() {
     glLinkProgram(this->program);
     this->transform_uni = glGetUniformLocation(this->program, "transform");
     this->ortho_uni = glGetUniformLocation(this->program, "ortho");
+    this->atlas_uni = glGetUniformLocation(this->program, "atlas");
+    this->start();
+    glUniform4f(this->atlas_uni, 0, 0, 1, 1);
 }
 
 void QuadShader::set_transform(float *data) {
@@ -325,6 +335,14 @@ void QuadShader::set_transform(float *data) {
 void QuadShader::set_ortho(float *data) {
     this->start();
     glUniformMatrix4fv(this->ortho_uni, 1, true, data);
+    this->stop();
+}
+
+void QuadShader::set_atlas(size_t x, size_t y, size_t w, size_t h) {
+    this->start();
+    float tw = 1.0f / (float)w;
+    float th = 1.0f / (float)h;
+    glUniform4f(this->atlas_uni, tw * (float)x, th * (float)y, tw, th);
     this->stop();
 }
 
@@ -389,8 +407,11 @@ void Renderer::upload_ortho(float left, float right, float bottom, float top,
 }
 
 void Renderer::bind_texture(TextureRef &tex) {
-    // TODO upload atlas offset
-
+    if (tex.offset && tex.size) {
+        this->quad_shader.set_atlas(
+            tex.offset.value().first, tex.offset.value().second,
+            tex.size.value().first, tex.size.value().second);
+    }
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex.texture.get_texture());
 }

@@ -115,6 +115,7 @@ void TilemapChunk::render(TilemapComponent &tilemap, render::Renderer &renderer,
                 render::Transform3D()
                     .translate(render_size * (float)x, render_size * (float)y,
                                0)
+                    .translate(-1.73f, -0.95f, 0)
                     .scale(render_size, render_size, render_size));
             renderer.bind_texture(tile_type.texture);
             renderer.draw_quad();
@@ -225,9 +226,9 @@ int main() {
     tilemap.add_tile_type(grass_tile);
     tilemap.add_tile_type(stone_tile);
 
-    math::SimplexNoise noise;
+    math::SimplexNoise noise(45246);
     for (uint32_t i = 0; i < 100; i++) {
-        float val = (noise.get(0, (float)i) + 1.0f) * 6.0f;
+        float val = (noise.get(0, (float)i * 3.0f) + 1.0f) * 12.0f;
         uint32_t height = (uint32_t)val;
         for (uint32_t y = 0; y < height; y++) {
             if (y + 1 == height) {

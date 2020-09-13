@@ -4,7 +4,13 @@
 #include <stb_image.h>
 #include <zlib.h>
 #include <system_error>
+
+#ifdef __linux__
 #include <filesystem>
+#else
+#include <experimental/filesystem>
+#endif
+
 #include <cstring>
 #include <fstream>
 #include <iterator>

@@ -61,7 +61,8 @@ namespace tilemap {
         ChunkPos get_chunk_pos_from_pos(uint32_t x, uint32_t y);
 
        public:
-        TilemapComponent(uint16_t chunk_size, float render_tile_size);
+        TilemapComponent(core::Entity &entity, uint16_t chunk_size,
+                         float render_tile_size);
         virtual void update(core::Interface &interface);
         virtual void init(core::Interface &interface);
         virtual bool is_unique();

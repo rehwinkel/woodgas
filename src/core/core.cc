@@ -21,15 +21,40 @@ logging::Logger& Interface::get_logger() { return *this->logger; }
 
 bool Interface::has_logger() { return this->logger; }
 
-Component::Component() : enabled(true) {}
+Component::Component() : enabled(true), entity(nullptr) {}
 
 bool Component::is_enabled() { return this->enabled; }
 
 void Component::set_active(bool state) { this->enabled = state; }
 
+void Component::set_entity(Entity& entity) { this->entity = &entity; }
+
 Component::~Component() {}
 
-Entity::Entity(size_t id) : id(id), parent(nullptr) {}
+Entity::Entity(size_t id) : id(id), enabled(true), parent(nullptr) {}
+
+/*
+size_t id;
+
+        bool enabled;
+        std::map<size_t, std::vector<std::unique_ptr<Component>>> components;
+
+        std::map<size_t, Entity> children;
+        Entity* parent;
+*/
+
+Entity::Entity(Entity&& other)
+    : id(other.id),
+      enabled(other.enabled),
+      components(std::move(other.components)),
+      children(std::move(other.children)),
+      parent(other.parent) {
+    for (auto& components : this->components) {
+        for (auto& component : components.second) {
+            component->set_entity(*this);
+        }
+    }
+}
 
 bool Entity::is_enabled() { return this->enabled; }
 
@@ -76,6 +101,7 @@ Entity& Entity::get_parent() {
 }
 
 void Entity::add_component(std::unique_ptr<Component> component) {
+    component->set_entity(*this);
     if (this->components.find(typeid(*component).hash_code()) ==
         this->components.end()) {
         std::vector<std::unique_ptr<Component>> comp_vec;

@@ -48,7 +48,8 @@ void TilemapChunk::render(TilemapComponent &tilemap, render::Renderer &renderer,
     renderer.batch_draw_quad_end();
 }
 
-TilemapComponent::TilemapComponent(uint16_t chunk_size, float render_tile_size)
+TilemapComponent::TilemapComponent(core::Entity &entity, uint16_t chunk_size,
+                                   float render_tile_size)
     : chunk_size(chunk_size), render_tile_size(render_tile_size) {}
 
 bool TilemapComponent::is_unique() { return true; }

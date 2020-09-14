@@ -10,6 +10,56 @@
 extern "C" const char assets[];
 extern "C" const size_t assets_len;
 
+class GenerateWorldComponent : public core::Component {
+   private:
+    int seed;
+    tilemap::Tile &grass_tile;
+    tilemap::Tile &dirt_tile;
+    tilemap::Tile &stone_tile;
+
+   public:
+    GenerateWorldComponent(core::Entity &entity, int seed,
+                           tilemap::Tile &grass_tile, tilemap::Tile &dirt_tile,
+                           tilemap::Tile &stone_tile);
+    virtual void init(core::Interface &interface);
+    virtual void update(core::Interface &interface);
+    virtual bool is_unique();
+};
+
+GenerateWorldComponent::GenerateWorldComponent(core::Entity &entity, int seed,
+                                               tilemap::Tile &grass_tile,
+                                               tilemap::Tile &dirt_tile,
+                                               tilemap::Tile &stone_tile)
+    : seed(seed),
+      grass_tile(grass_tile),
+      dirt_tile(dirt_tile),
+      stone_tile(stone_tile) {}
+
+bool GenerateWorldComponent::is_unique() { return true; }
+
+void GenerateWorldComponent::update(core::Interface &interface) {}
+
+void GenerateWorldComponent::init(core::Interface &interface) {
+    tilemap::TilemapComponent &tilemap_comp =
+        dynamic_cast<tilemap::TilemapComponent &>(
+            this->entity->get_single_component<tilemap::TilemapComponent>());
+
+    math::SimplexNoise noise(this->seed);
+    for (uint32_t i = 0; i < 1000; i++) {
+        float val = (noise.get(0, (float)i * 3.0f) + 1.0f) * 20.0f;
+        uint32_t height = (uint32_t)val;
+        for (uint32_t y = 0; y < height; y++) {
+            if (y + 1 == height) {
+                tilemap_comp.set_tile(i, y, grass_tile);
+            } else if (y > height - 4) {
+                tilemap_comp.set_tile(i, y, dirt_tile);
+            } else {
+                tilemap_comp.set_tile(i, y, stone_tile);
+            }
+        }
+    }
+}
+
 int main() {
     logging::Logger logger;
     asset::Assets game_assets(logger, "res", assets, assets + assets_len);
@@ -49,7 +99,10 @@ int main() {
          {gravel.get_width(), gravel.get_height(), gravel.get_components(),
           (char *)gravel.get_data()}});
 
-    tilemap::TilemapComponent tilemap_comp(32, 0.05f);
+    core::Game game;
+    core::Entity tilemap_entity = game.create_entity();
+
+    tilemap::TilemapComponent tilemap_comp(tilemap_entity, 32, 0.05f);
     tilemap::Tile dirt_tile(blocks[0]);
     tilemap::Tile grass_tile(blocks[1]);
     tilemap::Tile stone_tile(blocks[2]);
@@ -57,25 +110,13 @@ int main() {
     tilemap_comp.add_tile_type(grass_tile);
     tilemap_comp.add_tile_type(stone_tile);
 
-    math::SimplexNoise noise(31415);
-    for (uint32_t i = 0; i < 1000; i++) {
-        float val = (noise.get(0, (float)i * 3.0f) + 1.0f) * 20.0f;
-        uint32_t height = (uint32_t)val;
-        for (uint32_t y = 0; y < height; y++) {
-            if (y + 1 == height) {
-                tilemap_comp.set_tile(i, y, grass_tile);
-            } else if (y > height - 4) {
-                tilemap_comp.set_tile(i, y, dirt_tile);
-            } else {
-                tilemap_comp.set_tile(i, y, stone_tile);
-            }
-        }
-    }
+    GenerateWorldComponent generate_comp(tilemap_entity, 12345, grass_tile,
+                                         dirt_tile, stone_tile);
 
-    core::Game game;
-    core::Entity tilemap_entity = game.create_entity();
     tilemap_entity.add_component(
         std::make_unique<tilemap::TilemapComponent>(tilemap_comp));
+    tilemap_entity.add_component(
+        std::make_unique<GenerateWorldComponent>(generate_comp));
     game.add_entity(std::move(tilemap_entity));
 
     core::Interface interface(logger, renderer);

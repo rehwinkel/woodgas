@@ -24,9 +24,14 @@ namespace core {
         bool has_logger();
     };
 
+    class Entity;
+
     class Component {
        private:
         bool enabled;
+
+       protected:
+        Entity* entity;
 
        public:
         Component();
@@ -34,6 +39,7 @@ namespace core {
         virtual void init(Interface& interface) = 0;
         bool is_enabled();
         void set_active(bool state);
+        void set_entity(Entity& entity);
         virtual bool is_unique() = 0;
         virtual ~Component();
     };
@@ -50,7 +56,7 @@ namespace core {
 
        public:
         explicit Entity(size_t id);
-        Entity(Entity&& other) = default;
+        Entity(Entity&& other);
         Entity(const Entity& other) = delete;
         bool is_enabled();
         void set_active(bool state);
@@ -68,7 +74,7 @@ namespace core {
         template <class t>
         inline std::vector<std::unique_ptr<core::Component>>& get_component();
         template <class t>
-        inline Component& get_component();
+        inline Component& get_single_component();
         Entity& get_parent();
         void init(Interface& interface);
         void update(Interface& interface);
@@ -125,7 +131,7 @@ std::vector<std::unique_ptr<core::Component>>& core::Entity::get_component() {
 }
 
 template <class t>
-inline core::Component& core::Entity::get_component() {
+inline core::Component& core::Entity::get_single_component() {
     std::vector<std::unique_ptr<core::Component>>& components =
         this->get_component<t>();
     return *components.at(0);

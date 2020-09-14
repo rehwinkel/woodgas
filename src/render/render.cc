@@ -328,6 +328,7 @@ void QuadShader::load_uniforms() {
     glLinkProgram(this->program);
     this->transform_uni = glGetUniformLocation(this->program, "transform");
     this->ortho_uni = glGetUniformLocation(this->program, "ortho");
+    this->view_uni = glGetUniformLocation(this->program, "view");
     this->atlas_uni = glGetUniformLocation(this->program, "atlas");
     this->start();
     glUniform4f(this->atlas_uni, 0, 0, 1, 1);
@@ -348,6 +349,16 @@ void QuadShader::set_ortho(float *data, bool change_shader_state) {
         this->start();
     }
     glUniformMatrix4fv(this->ortho_uni, 1, true, data);
+    if (change_shader_state) {
+        this->stop();
+    }
+}
+
+void QuadShader::set_view(float *data, bool change_shader_state) {
+    if (change_shader_state) {
+        this->start();
+    }
+    glUniformMatrix4fv(this->view_uni, 1, true, data);
     if (change_shader_state) {
         this->stop();
     }
@@ -391,6 +402,8 @@ Renderer::Renderer(Window &window, logging::Logger &logger)
     this->set_background_color({1.0, 1.0, 1.0, 1.0});
     this->quad_shader = QuadShader();
     this->quad_shader.load_uniforms();
+    this->upload_transform(render::Transform3D());
+    this->upload_view(0, 0, 0);
 }
 
 void Renderer::clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
@@ -424,6 +437,11 @@ void Renderer::upload_ortho(float left, float right, float bottom, float top,
         1,
     };
     this->quad_shader.set_ortho(data);
+}
+
+void Renderer::upload_view(float x, float y, float z) {
+    Transform3D transform = Transform3D().translate(-x, -y, -z);
+    this->quad_shader.set_view(transform.get_data());
 }
 
 void Renderer::bind_texture(TextureRef &tex) {

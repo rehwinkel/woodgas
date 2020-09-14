@@ -124,6 +124,7 @@ namespace render {
     class QuadShader : public Shader {
         GLint transform_uni;
         GLint ortho_uni;
+        GLint view_uni;
         GLint atlas_uni;
 
        public:
@@ -131,6 +132,7 @@ namespace render {
         void load_uniforms();
         void set_transform(float *data, bool change_shader_state = true);
         void set_ortho(float *data, bool change_shader_state = true);
+        void set_view(float *data, bool change_shader_state = true);
         void set_atlas(int16_t x, int16_t y, int16_t w, int16_t h,
                        bool change_shader_state = true);
     };
@@ -146,6 +148,7 @@ namespace render {
         void clear();
         void upload_transform(Transform3D &&tf);
         void upload_transform(Transform3D &tf);
+        void upload_view(float x, float y, float z);
         void upload_ortho(float left, float right, float bottom, float top,
                           float near, float far);
         void set_background_color(Color &&color);

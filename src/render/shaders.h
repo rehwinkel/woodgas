@@ -7,10 +7,11 @@ out vec4 pass_color;
 
 uniform mat4 transform;
 uniform mat4 ortho;
+uniform mat4 view;
 
 void main()
 {
-    gl_Position = ortho * transform * vec4(position * 0.5, 1.0);
+    gl_Position = ortho * view * transform * vec4(position * 0.5, 1.0);
     pass_color = vec4(uv, 0.0, 1.0);
 }
 )glsl";

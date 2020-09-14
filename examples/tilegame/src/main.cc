@@ -80,9 +80,10 @@ int main() {
 
     core::Interface interface(logger, renderer);
 
+    float camera_x = 0.0f;
+
     float ar = 1280.0f / 720.0f;
     renderer.upload_ortho(-1 * ar, 1 * ar, -1, 1, 0.1f, 100);
-    renderer.upload_transform(render::Transform3D());
 
     size_t frame_count = 0;
     double last_fps_time = 0.0;
@@ -90,9 +91,11 @@ int main() {
     while (window.is_open()) {
         window.poll_inputs();
 
+        renderer.upload_view(camera_x, 0, 0);
         renderer.clear();
 
         game.update(interface);
+        camera_x += (float)time.delta_time() * 0.5f;
 
         time._frame_complete();
         window.swap_buffers();

@@ -81,11 +81,11 @@ namespace render {
     class TextureRef {
        public:
         Texture texture;
-        std::optional<std::pair<size_t, size_t>> size;
-        std::optional<std::pair<size_t, size_t>> offset;
+        std::pair<int16_t, int16_t> size;
+        std::pair<int16_t, int16_t> offset;
         TextureRef(Texture texture);
-        TextureRef(Texture texture, size_t x, size_t y, size_t width,
-                   size_t height);
+        TextureRef(Texture texture, int16_t x, int16_t y, int16_t width,
+                   int16_t height);
         bool operator==(const TextureRef &other) const;
     };
 
@@ -129,9 +129,10 @@ namespace render {
        public:
         QuadShader();
         void load_uniforms();
-        void set_transform(float *data);
-        void set_ortho(float *data);
-        void set_atlas(size_t x, size_t y, size_t w, size_t h);
+        void set_transform(float *data, bool change_shader_state = true);
+        void set_ortho(float *data, bool change_shader_state = true);
+        void set_atlas(int16_t x, int16_t y, int16_t w, int16_t h,
+                       bool change_shader_state = true);
     };
 
     class Renderer {
@@ -152,5 +153,11 @@ namespace render {
         void bind_texture(TextureRef &tex);
         void bind_texture(Texture &tex);
         void draw_quad();
+        void batch_upload_transform(Transform3D &&tf);
+        void batch_upload_transform(Transform3D &tf);
+        void batch_bind_texture(TextureRef &tex);
+        void batch_draw_quad_begin();
+        void batch_draw_quad_end();
+        void batch_draw_quad();
     };
 }  // namespace render

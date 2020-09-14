@@ -57,8 +57,8 @@ int main() {
     tilemap_comp.add_tile_type(grass_tile);
     tilemap_comp.add_tile_type(stone_tile);
 
-    math::SimplexNoise noise(12345);
-    for (uint32_t i = 0; i < 80; i++) {
+    math::SimplexNoise noise(31415);
+    for (uint32_t i = 0; i < 1000; i++) {
         float val = (noise.get(0, (float)i * 3.0f) + 1.0f) * 20.0f;
         uint32_t height = (uint32_t)val;
         for (uint32_t y = 0; y < height; y++) {
@@ -84,6 +84,8 @@ int main() {
     renderer.upload_ortho(-1 * ar, 1 * ar, -1, 1, 0.1f, 100);
     renderer.upload_transform(render::Transform3D());
 
+    size_t frame_count = 0;
+    double last_fps_time = 0.0;
     game.init(interface);
     while (window.is_open()) {
         window.poll_inputs();
@@ -94,6 +96,13 @@ int main() {
 
         time._frame_complete();
         window.swap_buffers();
+        frame_count++;
+        if (time.current() - last_fps_time > 1.0) {
+            logger.debug_stream()
+                << "FPS: " << frame_count << logging::COLOR_RS << std::endl;
+            frame_count = 0;
+            last_fps_time = time.current();
+        }
     }
     return 0;
 }

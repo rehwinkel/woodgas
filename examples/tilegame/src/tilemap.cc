@@ -26,6 +26,7 @@ void TilemapChunk::set_tile(uint16_t x, uint16_t y, uint16_t tile) {
 
 void TilemapChunk::render(TilemapComponent &tilemap, render::Renderer &renderer,
                           float render_size) {
+    renderer.batch_draw_quad_begin();
     for (uint32_t i = 0; i < (uint32_t)this->tiles.size(); i++) {
         uint16_t tile = this->tiles[i];
         uint32_t x =
@@ -34,16 +35,17 @@ void TilemapChunk::render(TilemapComponent &tilemap, render::Renderer &renderer,
             this->pos.y * this->chunk_size + (i / (uint32_t)chunk_size);
         if (tile) {
             Tile &tile_type = tilemap.get_tile_type(tile);
-            renderer.upload_transform(
+            renderer.batch_upload_transform(
                 render::Transform3D()
                     .translate(render_size * ((float)x + 0.5f),
                                render_size * ((float)y + 0.5f), 0)
                     .translate(-16.0f / 9.0f, -1, 0)
                     .scale(render_size, render_size, render_size));
-            renderer.bind_texture(tile_type.texture);
-            renderer.draw_quad();
+            renderer.batch_bind_texture(tile_type.texture);
+            renderer.batch_draw_quad();
         }
     }
+    renderer.batch_draw_quad_end();
 }
 
 TilemapComponent::TilemapComponent(uint16_t chunk_size, float render_tile_size)

@@ -17,13 +17,13 @@ namespace tilemap {
     struct TileHash {
         size_t operator()(const Tile &k) const {
             size_t hash = (size_t)k.texture.texture.get_texture();
-            if (k.texture.size) {
-                math::hash_combine(hash, k.texture.size.value().first);
-                math::hash_combine(hash, k.texture.size.value().second);
+            if (k.texture.size.first >= 0 && k.texture.size.second >= 0) {
+                math::hash_combine(hash, k.texture.size.first);
+                math::hash_combine(hash, k.texture.size.second);
             }
-            if (k.texture.offset) {
-                math::hash_combine(hash, k.texture.offset.value().first);
-                math::hash_combine(hash, k.texture.offset.value().second);
+            if (k.texture.offset.first >= 0 && k.texture.offset.second >= 0) {
+                math::hash_combine(hash, k.texture.offset.first);
+                math::hash_combine(hash, k.texture.offset.second);
             }
             return hash;
         }

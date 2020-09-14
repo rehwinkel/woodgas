@@ -115,7 +115,7 @@ std::vector<TextureRef> Texture::create_atlas(std::vector<AtlasEntry> entries,
     size_t entry_width = entries[0].width;
     size_t entry_height = entries[0].height;
     int entry_components = entries[0].components;
-    size_t atlas_size = (size_t)std::ceil(std::sqrt(entries.size()));
+    int16_t atlas_size = (int16_t)std::ceil(std::sqrt(entries.size()));
     size_t texture_width = entry_width * atlas_size;
     size_t texture_height = entry_height * atlas_size;
     char *texture_data =
@@ -141,20 +141,20 @@ std::vector<TextureRef> Texture::create_atlas(std::vector<AtlasEntry> entries,
     Texture tex(texture_width, texture_height, entry_components, texture_data,
                 interpolate);
     std::vector<TextureRef> refs;
-    for (size_t i = 0; i < entries.size(); i++) {
-        size_t x = i % atlas_size;
-        size_t y = i / atlas_size;
+    for (int16_t i = 0; i < (int16_t)entries.size(); i++) {
+        int16_t x = i % atlas_size;
+        int16_t y = i / atlas_size;
         refs.push_back(render::TextureRef(tex, x, y, atlas_size, atlas_size));
     }
     return refs;
 }
 
 TextureRef::TextureRef(Texture texture)
-    : texture(texture), size(std::nullopt), offset(std::nullopt) {}
+    : texture(texture), size(-1, -1), offset(-1, -1) {}
 
-TextureRef::TextureRef(Texture texture, size_t x, size_t y, size_t width,
-                       size_t height)
-    : texture(texture), size({width, height}), offset({x, y}) {}
+TextureRef::TextureRef(Texture texture, int16_t x, int16_t y, int16_t width,
+                       int16_t height)
+    : texture(texture), size(width, height), offset(x, y) {}
 
 bool TextureRef::operator==(const TextureRef &other) const {
     if (this->texture.get_texture() != other.texture.get_texture()) {
@@ -333,24 +333,37 @@ void QuadShader::load_uniforms() {
     glUniform4f(this->atlas_uni, 0, 0, 1, 1);
 }
 
-void QuadShader::set_transform(float *data) {
-    this->start();
+void QuadShader::set_transform(float *data, bool change_shader_state) {
+    if (change_shader_state) {
+        this->start();
+    }
     glUniformMatrix4fv(this->transform_uni, 1, true, data);
-    this->stop();
+    if (change_shader_state) {
+        this->stop();
+    }
 }
 
-void QuadShader::set_ortho(float *data) {
-    this->start();
+void QuadShader::set_ortho(float *data, bool change_shader_state) {
+    if (change_shader_state) {
+        this->start();
+    }
     glUniformMatrix4fv(this->ortho_uni, 1, true, data);
-    this->stop();
+    if (change_shader_state) {
+        this->stop();
+    }
 }
 
-void QuadShader::set_atlas(size_t x, size_t y, size_t w, size_t h) {
-    this->start();
+void QuadShader::set_atlas(int16_t x, int16_t y, int16_t w, int16_t h,
+                           bool change_shader_state) {
+    if (change_shader_state) {
+        this->start();
+    }
     float tw = 1.0f / (float)w;
     float th = 1.0f / (float)h;
     glUniform4f(this->atlas_uni, tw * (float)x, th * (float)y, tw, th);
-    this->stop();
+    if (change_shader_state) {
+        this->stop();
+    }
 }
 
 Renderer::Renderer(Window &window, logging::Logger &logger)
@@ -414,10 +427,10 @@ void Renderer::upload_ortho(float left, float right, float bottom, float top,
 }
 
 void Renderer::bind_texture(TextureRef &tex) {
-    if (tex.offset && tex.size) {
-        this->quad_shader.set_atlas(
-            tex.offset.value().first, tex.offset.value().second,
-            tex.size.value().first, tex.size.value().second);
+    if (tex.offset.first >= 0 && tex.offset.second >= 0 &&
+        tex.size.first >= 0 && tex.size.second >= 0) {
+        this->quad_shader.set_atlas(tex.offset.first, tex.offset.second,
+                                    tex.size.first, tex.size.second);
     }
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex.texture.get_texture());
@@ -429,18 +442,47 @@ void Renderer::bind_texture(Texture &tex) {
 }
 
 void Renderer::draw_quad() {
+    this->batch_draw_quad_begin();
+    this->batch_draw_quad();
+    this->batch_draw_quad_end();
+}
+
+void Renderer::batch_upload_transform(Transform3D &&tf) {
+    this->quad_shader.set_transform(tf.get_data(), false);
+}
+
+void Renderer::batch_upload_transform(Transform3D &tf) {
+    this->quad_shader.set_transform(tf.get_data(), false);
+}
+void Renderer::batch_bind_texture(TextureRef &tex) {
+    if (tex.offset.first >= 0 && tex.offset.second >= 0 &&
+        tex.size.first >= 0 && tex.size.second >= 0) {
+        this->quad_shader.set_atlas(tex.offset.first, tex.offset.second,
+                                    tex.size.first, tex.size.second, false);
+    }
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex.texture.get_texture());
+}
+
+void Renderer::batch_draw_quad_begin() {
     this->quad_shader.start();
     glBindVertexArray(this->quad.get_vao());
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->quad.get_indices());
-    glDrawElements(GL_TRIANGLES, this->quad.get_length(), GL_UNSIGNED_INT,
-                   nullptr);
+}
+
+void Renderer::batch_draw_quad_end() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(0);
     glBindVertexArray(0);
     this->quad_shader.stop();
+}
+
+void Renderer::batch_draw_quad() {
+    glDrawElements(GL_TRIANGLES, this->quad.get_length(), GL_UNSIGNED_INT,
+                   nullptr);
 }
 
 void Renderer::set_background_color(Color &&color) {

@@ -85,13 +85,16 @@ bool TilemapComponent::should_chunk_render(ChunkPos pos, core::Game &game,
 
 void TilemapComponent::update(core::Interface &interface) {
     render::Renderer &renderer = interface.get_renderer();
+    // size_t chunk_draw_count = 0;
     for (auto &chunk_pair : this->chunks) {
         if (this->should_chunk_render(ChunkPos(chunk_pair.first),
                                       interface.get_game(),
                                       interface.get_logger())) {
             chunk_pair.second.render(*this, renderer, this->render_tile_size);
+            // chunk_draw_count++;
         }
     }
+    // interface.get_logger().info(std::to_string(chunk_draw_count));
 }
 
 void TilemapComponent::add_tile_type(Tile tile) {

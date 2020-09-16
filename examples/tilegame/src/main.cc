@@ -108,7 +108,7 @@ int main() {
     game.add_entity(std::move(camera_entity));
 
     core::Entity tilemap_entity = game.create_entity();
-    tilemap::TilemapComponent tilemap_comp(64, 0.05f, camera_id);
+    tilemap::TilemapComponent tilemap_comp(32, 0.05f, camera_id);
     tilemap::Tile dirt_tile(blocks[0]);
     tilemap::Tile grass_tile(blocks[1]);
     tilemap::Tile stone_tile(blocks[2]);

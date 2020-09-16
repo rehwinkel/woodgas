@@ -39,7 +39,6 @@ void TilemapChunk::render(TilemapComponent &tilemap, render::Renderer &renderer,
                 render::Transform3D()
                     .translate(render_size * ((float)x + 0.5f),
                                render_size * ((float)y + 0.5f), 0)
-                    .translate(-16.0f / 9.0f, -1, 0)
                     .scale(render_size, render_size, render_size));
             renderer.batch_bind_texture(tile_type.texture);
             renderer.batch_draw_quad();
@@ -48,18 +47,50 @@ void TilemapChunk::render(TilemapComponent &tilemap, render::Renderer &renderer,
     renderer.batch_draw_quad_end();
 }
 
-TilemapComponent::TilemapComponent(core::Entity &entity, uint16_t chunk_size,
-                                   float render_tile_size)
-    : chunk_size(chunk_size), render_tile_size(render_tile_size) {}
+TilemapComponent::TilemapComponent(uint16_t chunk_size, float render_tile_size,
+                                   size_t camera_id)
+    : chunk_size(chunk_size),
+      render_tile_size(render_tile_size),
+      camera_id(camera_id) {}
 
 bool TilemapComponent::is_unique() { return true; }
 
 void TilemapComponent::init(core::Interface &interface) {}
 
+bool TilemapComponent::should_chunk_render(ChunkPos pos, core::Game &game,
+                                           logging::Logger &logger) {
+    CameraComponent &camera = this->get_camera(game);
+    float minx =
+        this->render_tile_size * (float)this->chunk_size * (float)pos.x;
+    float miny =
+        this->render_tile_size * (float)this->chunk_size * (float)pos.y;
+    float maxx =
+        this->render_tile_size * (float)this->chunk_size * (float)(pos.x + 1);
+    float maxy =
+        this->render_tile_size * (float)this->chunk_size * (float)(pos.y + 1);
+    float camx = camera.get_x();
+    float camy = camera.get_y();
+    float ar = camera.get_aspect_ratio();
+    /*
+    logger.debug_stream() << "minx: " << minx << ", "
+                          << "miny: " << miny << ", "
+                          << "maxx: " << maxx << ", "
+                          << "maxy: " << maxy << ", "
+                          << "camx: " << camx << ", "
+                          << "camy: " << camy << logging::COLOR_RS << std::endl;
+    */
+    return (std::abs(minx - camx) <= ar || std::abs(maxx - camx) <= ar) &&
+           (std::abs(miny - camy) <= 1.0f || std::abs(maxy - camy) <= 1.0f);
+}
+
 void TilemapComponent::update(core::Interface &interface) {
     render::Renderer &renderer = interface.get_renderer();
     for (auto &chunk_pair : this->chunks) {
-        chunk_pair.second.render(*this, renderer, this->render_tile_size);
+        if (this->should_chunk_render(ChunkPos(chunk_pair.first),
+                                      interface.get_game(),
+                                      interface.get_logger())) {
+            chunk_pair.second.render(*this, renderer, this->render_tile_size);
+        }
     }
 }
 
@@ -103,4 +134,10 @@ void TilemapComponent::set_tile(uint32_t x, uint32_t y, Tile &tile) {
     TilemapChunk &chunk = this->chunks.at(chunk_pos.as_long());
     chunk.set_tile(((uint16_t)x) % this->chunk_size,
                    ((uint16_t)y) % this->chunk_size, tile_id);
+}
+
+CameraComponent &TilemapComponent::get_camera(core::Game &game) {
+    core::Entity &camera_entity = game.get_entity(this->camera_id);
+    return (CameraComponent &)
+        camera_entity.get_single_component<CameraComponent>();
 }

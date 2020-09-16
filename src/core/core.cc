@@ -2,16 +2,12 @@
 
 using namespace core;
 
-Interface::Interface() : logger(nullptr), renderer(nullptr) {}
+Interface::Interface()
+    : logger(nullptr), renderer(nullptr), time(nullptr), game(nullptr) {}
 
-Interface::Interface(logging::Logger& logger)
-    : logger(&logger), renderer(nullptr) {}
-
-Interface::Interface(render::Renderer& renderer)
-    : logger(nullptr), renderer(&renderer) {}
-
-Interface::Interface(logging::Logger& logger, render::Renderer& renderer)
-    : logger(&logger), renderer(&renderer) {}
+Interface::Interface(logging::Logger& logger, render::Renderer& renderer,
+                     timer::Time& time, Game& game)
+    : logger(&logger), renderer(&renderer), time(&time), game(&game) {}
 
 render::Renderer& Interface::get_renderer() { return *this->renderer; }
 
@@ -20,6 +16,14 @@ bool Interface::has_renderer() { return this->renderer; }
 logging::Logger& Interface::get_logger() { return *this->logger; }
 
 bool Interface::has_logger() { return this->logger; }
+
+timer::Time& Interface::get_time() { return *this->time; }
+
+bool Interface::has_time() { return this->time; }
+
+Game& Interface::get_game() { return *this->game; }
+
+bool Interface::has_game() { return this->game; }
 
 Component::Component() : enabled(true), entity(nullptr) {}
 
@@ -32,16 +36,6 @@ void Component::set_entity(Entity& entity) { this->entity = &entity; }
 Component::~Component() {}
 
 Entity::Entity(size_t id) : id(id), enabled(true), parent(nullptr) {}
-
-/*
-size_t id;
-
-        bool enabled;
-        std::map<size_t, std::vector<std::unique_ptr<Component>>> components;
-
-        std::map<size_t, Entity> children;
-        Entity* parent;
-*/
 
 Entity::Entity(Entity&& other)
     : id(other.id),

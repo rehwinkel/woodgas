@@ -7,21 +7,29 @@
 #include <memory>
 
 #include "../render/render.h"
+#include "../util/timer.h"
 
 namespace core {
+    class Game;
+
     class Interface {
         logging::Logger* logger;
         render::Renderer* renderer;
+        timer::Time* time;
+        Game* game;
 
        public:
         Interface();
-        Interface(logging::Logger& logger);
-        Interface(render::Renderer& renderer);
-        Interface(logging::Logger& logger, render::Renderer& renderer);
+        Interface(logging::Logger& logger, render::Renderer& renderer,
+                  timer::Time& time, Game& game);
         render::Renderer& get_renderer();
         bool has_renderer();
         logging::Logger& get_logger();
         bool has_logger();
+        timer::Time& get_time();
+        bool has_time();
+        Game& get_game();
+        bool has_game();
     };
 
     class Entity;

@@ -18,15 +18,14 @@ class GenerateWorldComponent : public core::Component {
     tilemap::Tile &stone_tile;
 
    public:
-    GenerateWorldComponent(core::Entity &entity, int seed,
-                           tilemap::Tile &grass_tile, tilemap::Tile &dirt_tile,
-                           tilemap::Tile &stone_tile);
+    GenerateWorldComponent(int seed, tilemap::Tile &grass_tile,
+                           tilemap::Tile &dirt_tile, tilemap::Tile &stone_tile);
     virtual void init(core::Interface &interface);
     virtual void update(core::Interface &interface);
     virtual bool is_unique();
 };
 
-GenerateWorldComponent::GenerateWorldComponent(core::Entity &entity, int seed,
+GenerateWorldComponent::GenerateWorldComponent(int seed,
                                                tilemap::Tile &grass_tile,
                                                tilemap::Tile &dirt_tile,
                                                tilemap::Tile &stone_tile)
@@ -41,12 +40,12 @@ void GenerateWorldComponent::update(core::Interface &interface) {}
 
 void GenerateWorldComponent::init(core::Interface &interface) {
     tilemap::TilemapComponent &tilemap_comp =
-        dynamic_cast<tilemap::TilemapComponent &>(
-            this->entity->get_single_component<tilemap::TilemapComponent>());
+        (tilemap::TilemapComponent &)this->entity
+            ->get_single_component<tilemap::TilemapComponent>();
 
     math::SimplexNoise noise(this->seed);
-    for (uint32_t i = 0; i < 1000; i++) {
-        float val = (noise.get(0, (float)i * 3.0f) + 1.0f) * 20.0f;
+    for (uint32_t i = 0; i < 0x1000; i++) {
+        float val = (noise.get(0, (float)i * 3.0f) + 1.0f) * (float)0x20;
         uint32_t height = (uint32_t)val;
         for (uint32_t y = 0; y < height; y++) {
             if (y + 1 == height) {
@@ -67,6 +66,7 @@ int main() {
     render::Renderer renderer(window, logger);
     input::Input inputs(window, logger);
     timer::Time time(window);
+    core::Game game;
 
     // asset::Generic &data = game_assets.load_generic("test.json");
     asset::Image &dirt = game_assets.load_image("tiles/dirt.png");
@@ -99,32 +99,31 @@ int main() {
          {gravel.get_width(), gravel.get_height(), gravel.get_components(),
           (char *)gravel.get_data()}});
 
-    core::Game game;
-    core::Entity tilemap_entity = game.create_entity();
+    core::Entity camera_entity = game.create_entity();
+    camera_entity.add_component(
+        std::make_unique<CameraComponent>(1280.0f / 720.0f));
+    ((CameraComponent &)camera_entity.get_single_component<CameraComponent>())
+        .move(0, 1);
+    size_t camera_id = camera_entity.get_id();
+    game.add_entity(std::move(camera_entity));
 
-    tilemap::TilemapComponent tilemap_comp(tilemap_entity, 32, 0.05f);
+    core::Entity tilemap_entity = game.create_entity();
+    tilemap::TilemapComponent tilemap_comp(64, 0.05f, camera_id);
     tilemap::Tile dirt_tile(blocks[0]);
     tilemap::Tile grass_tile(blocks[1]);
     tilemap::Tile stone_tile(blocks[2]);
     tilemap_comp.add_tile_type(dirt_tile);
     tilemap_comp.add_tile_type(grass_tile);
     tilemap_comp.add_tile_type(stone_tile);
-
-    GenerateWorldComponent generate_comp(tilemap_entity, 12345, grass_tile,
-                                         dirt_tile, stone_tile);
-
+    GenerateWorldComponent generate_comp(12345, grass_tile, dirt_tile,
+                                         stone_tile);
     tilemap_entity.add_component(
         std::make_unique<tilemap::TilemapComponent>(tilemap_comp));
     tilemap_entity.add_component(
         std::make_unique<GenerateWorldComponent>(generate_comp));
     game.add_entity(std::move(tilemap_entity));
 
-    core::Interface interface(logger, renderer);
-
-    float camera_x = 0.0f;
-
-    float ar = 1280.0f / 720.0f;
-    renderer.upload_ortho(-1 * ar, 1 * ar, -1, 1, 0.1f, 100);
+    core::Interface interface(logger, renderer, time, game);
 
     size_t frame_count = 0;
     double last_fps_time = 0.0;
@@ -132,11 +131,13 @@ int main() {
     while (window.is_open()) {
         window.poll_inputs();
 
-        renderer.upload_view(camera_x, 0, 0);
         renderer.clear();
 
         game.update(interface);
-        camera_x += (float)time.delta_time() * 0.5f;
+
+        ((CameraComponent &)game.get_entity(camera_id)
+             .get_single_component<CameraComponent>())
+            .move(0.5f * (float)time.delta_time(), 0);
 
         time._frame_complete();
         window.swap_buffers();

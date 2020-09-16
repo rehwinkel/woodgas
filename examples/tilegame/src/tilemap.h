@@ -1,8 +1,8 @@
 #pragma once
 
-#include <render/render.h>
+#include "camera.h"
+
 #include <util/math.h>
-#include <core/core.h>
 
 #include <unordered_map>
 
@@ -55,14 +55,18 @@ namespace tilemap {
     class TilemapComponent : public core::Component {
         uint16_t chunk_size;
         float render_tile_size;
+        size_t camera_id;
         std::unordered_map<uint16_t, Tile> ids_to_tiles;
         std::unordered_map<Tile, uint16_t, TileHash> tiles_to_ids;
         std::unordered_map<size_t, TilemapChunk> chunks;
         ChunkPos get_chunk_pos_from_pos(uint32_t x, uint32_t y);
+        CameraComponent &get_camera(core::Game &game);
+        bool should_chunk_render(ChunkPos pos, core::Game &game,
+                                 logging::Logger &logger);
 
        public:
-        TilemapComponent(core::Entity &entity, uint16_t chunk_size,
-                         float render_tile_size);
+        TilemapComponent(uint16_t chunk_size, float render_tile_size,
+                         size_t camera_id);
         virtual void update(core::Interface &interface);
         virtual void init(core::Interface &interface);
         virtual bool is_unique();

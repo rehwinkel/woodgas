@@ -148,7 +148,7 @@ namespace render {
         void clear();
         void upload_transform(Transform3D &&tf);
         void upload_transform(Transform3D &tf);
-        void upload_view(float x, float y, float z);
+        void upload_view(float x, float y, float z, float scale);
         void upload_ortho(float left, float right, float bottom, float top,
                           float near, float far);
         void set_background_color(Color &&color);

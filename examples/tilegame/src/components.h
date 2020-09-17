@@ -1,10 +1,58 @@
 #pragma once
 
-#include "camera.h"
-
+#include <core/core.h>
 #include <util/math.h>
 
 #include <unordered_map>
+
+class TransformComponent : public core::Component {
+   private:
+    float x, y;
+
+   public:
+    TransformComponent();
+    TransformComponent(float x, float y);
+    virtual void init(core::Interface &interface);
+    virtual void update(core::Interface &interface);
+    virtual bool is_unique();
+    float get_x();
+    float get_y();
+    void move(float x, float y);
+};
+
+class Sprite {
+    render::TextureRef texture;
+    uint16_t width, height;
+
+   public:
+    Sprite(render::TextureRef texture, uint16_t width, uint16_t height);
+};
+
+class DrawSpriteComponent : public core::Component {
+   private:
+    Sprite sprite;
+    float pixels_per_unit;
+
+   public:
+    DrawSpriteComponent(Sprite sprite, float pixels_per_unit);
+    virtual void init(core::Interface &interface);
+    virtual void update(core::Interface &interface);
+    virtual bool is_unique();
+};
+
+class CameraComponent : public core::Component {
+   private:
+    float aspect_ratio;
+    float scale;
+
+   public:
+    CameraComponent(float aspect_ratio, float scale);
+    virtual void init(core::Interface &interface);
+    virtual void update(core::Interface &interface);
+    virtual bool is_unique();
+    float get_aspect_ratio();
+    float get_scale();
+};
 
 namespace tilemap {
     class Tile {

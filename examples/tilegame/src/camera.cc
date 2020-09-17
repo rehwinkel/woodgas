@@ -1,9 +1,9 @@
-#include "camera.h"
+#include "components.h"
 
 bool CameraComponent::is_unique() { return true; }
 
-CameraComponent::CameraComponent(float aspect_ratio)
-    : x(0), y(0), aspect_ratio(aspect_ratio) {}
+CameraComponent::CameraComponent(float aspect_ratio, float scale)
+    : aspect_ratio(aspect_ratio), scale(scale) {}
 
 void CameraComponent::init(core::Interface &interface) {
     interface.get_renderer().upload_ortho(
@@ -11,16 +11,10 @@ void CameraComponent::init(core::Interface &interface) {
 }
 
 void CameraComponent::update(core::Interface &interface) {
-    interface.get_renderer().upload_view(this->x, this->y, 0);
+    interface.get_renderer().upload_view(
+        0, 0, 0, 1.0f / this->scale);  // TODO: get x y from transfrom
 }
-
-float CameraComponent::get_x() { return this->x; }
-
-float CameraComponent::get_y() { return this->y; }
 
 float CameraComponent::get_aspect_ratio() { return this->aspect_ratio; }
 
-void CameraComponent::move(float x, float y) {
-    this->x += x;
-    this->y += y;
-}
+float CameraComponent::get_scale() { return this->scale; }

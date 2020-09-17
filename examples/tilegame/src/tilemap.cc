@@ -1,4 +1,4 @@
-#include "tilemap.h"
+#include "components.h"
 
 using namespace tilemap;
 
@@ -68,9 +68,10 @@ bool TilemapComponent::should_chunk_render(ChunkPos pos, core::Game &game,
         this->render_tile_size * (float)this->chunk_size * (float)(pos.x + 1);
     float maxy =
         this->render_tile_size * (float)this->chunk_size * (float)(pos.y + 1);
-    float camx = camera.get_x();
-    float camy = camera.get_y();
-    float ar = camera.get_aspect_ratio();
+    float camx = 0;  // TODO: camera.get_x();
+    float camy = 0;  // TODO: camera.get_y();
+    float sc = camera.get_scale();
+    float ar = camera.get_aspect_ratio() * sc;
     /*
     logger.debug_stream() << "minx: " << minx << ", "
                           << "miny: " << miny << ", "
@@ -80,7 +81,7 @@ bool TilemapComponent::should_chunk_render(ChunkPos pos, core::Game &game,
                           << "camy: " << camy << logging::COLOR_RS << std::endl;
     */
     return (std::abs(minx - camx) <= ar || std::abs(maxx - camx) <= ar) &&
-           (std::abs(miny - camy) <= 1.0f || std::abs(maxy - camy) <= 1.0f);
+           (std::abs(miny - camy) <= sc || std::abs(maxy - camy) <= sc);
 }
 
 void TilemapComponent::update(core::Interface &interface) {

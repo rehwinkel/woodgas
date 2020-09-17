@@ -5,7 +5,7 @@
 #include <util/timer.h>
 #include <util/math.h>
 
-#include "tilemap.h"
+#include "components.h"
 
 extern "C" const char assets[];
 extern "C" const size_t assets_len;
@@ -78,6 +78,7 @@ int main() {
     asset::Image &sand = game_assets.load_image("tiles/sand.png");
     asset::Image &redstone = game_assets.load_image("tiles/redstone.png");
     asset::Image &gravel = game_assets.load_image("tiles/gravel.png");
+    asset::Image &player = game_assets.load_image("player.png");
 
     std::vector<render::TextureRef> blocks = render::Texture::create_atlas(
         {{dirt.get_width(), dirt.get_height(), dirt.get_components(),
@@ -98,17 +99,18 @@ int main() {
           redstone.get_components(), (char *)redstone.get_data()},
          {gravel.get_width(), gravel.get_height(), gravel.get_components(),
           (char *)gravel.get_data()}});
+    render::Texture player_tex =
+        render::Texture(player.get_width(), player.get_height(),
+                        player.get_components(), (char *)player.get_data());
 
     core::Entity camera_entity = game.create_entity();
     camera_entity.add_component(
-        std::make_unique<CameraComponent>(1280.0f / 720.0f));
-    ((CameraComponent &)camera_entity.get_single_component<CameraComponent>())
-        .move(0, 1);
+        std::make_unique<CameraComponent>(1280.0f / 720.0f, 32.0f));
     size_t camera_id = camera_entity.get_id();
     game.add_entity(std::move(camera_entity));
 
     core::Entity tilemap_entity = game.create_entity();
-    tilemap::TilemapComponent tilemap_comp(32, 0.05f, camera_id);
+    tilemap::TilemapComponent tilemap_comp(32, 1.0f, camera_id);
     tilemap::Tile dirt_tile(blocks[0]);
     tilemap::Tile grass_tile(blocks[1]);
     tilemap::Tile stone_tile(blocks[2]);
@@ -135,10 +137,6 @@ int main() {
         renderer.clear();
 
         game.update(interface);
-
-        ((CameraComponent &)game.get_entity(camera_id)
-             .get_single_component<CameraComponent>())
-            .move(0.5f * (float)time.delta_time(), 0);
         frame_time_sum += (float)time.delta_time();
 
         time._frame_complete();

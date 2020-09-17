@@ -54,13 +54,14 @@ namespace serialize {
     size_t size_image(asset::Image& img) {
         return sizeof(img.get_width()) + sizeof(img.get_height()) +
                sizeof(img.get_components()) +
-               img.get_width() * img.get_height() * img.get_components();
+               (size_t)img.get_width() * (size_t)img.get_height() *
+                   (size_t)img.get_components();
     }
 
     asset::Image read_image(void** data) {
-        size_t width = read_value<size_t>(data);
-        size_t height = read_value<size_t>(data);
-        int components = read_value<int>(data);
+        uint16_t width = read_value<uint16_t>(data);
+        uint16_t height = read_value<uint16_t>(data);
+        uint8_t components = read_value<uint8_t>(data);
         std::vector<unsigned char> img_data;
         img_data.resize(width * height * components);
         std::memcpy(&(*img_data.begin()), (char*)*data, img_data.size());

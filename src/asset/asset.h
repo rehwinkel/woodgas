@@ -18,18 +18,18 @@ namespace asset {
                                                    std::string &resource);
 
     class Image {
-        size_t width, height;
-        int components;
+        uint16_t width, height;
+        uint8_t components;
         std::vector<unsigned char> data;
 
        public:
         Image();
-        Image(size_t width, size_t height, int components,
+        Image(uint16_t width, uint16_t height, uint8_t components,
               std::vector<unsigned char> data);
         unsigned char *get_data();
-        size_t get_width();
-        size_t get_height();
-        int get_components();
+        uint16_t get_width();
+        uint16_t get_height();
+        uint8_t get_components();
     };
 
     class Generic {

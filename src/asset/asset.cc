@@ -22,7 +22,7 @@ using namespace asset;
 
 Image::Image() {}
 
-Image::Image(size_t width, size_t height, int components,
+Image::Image(uint16_t width, uint16_t height, uint8_t components,
              std::vector<unsigned char> data)
     : width(width),
       height(height),
@@ -30,9 +30,9 @@ Image::Image(size_t width, size_t height, int components,
       data(std::move(data)) {}
 
 unsigned char *Image::get_data() { return &(*this->data.begin()); }
-size_t Image::get_width() { return this->width; }
-size_t Image::get_height() { return this->height; }
-int Image::get_components() { return this->components; }
+uint16_t Image::get_width() { return this->width; }
+uint16_t Image::get_height() { return this->height; }
+uint8_t Image::get_components() { return this->components; }
 
 Generic::Generic() {}
 
@@ -133,7 +133,7 @@ Image &Assets::load_image(std::string resource) {
             throw std::runtime_error("failed to load image");
         }
         this->images[index] =
-            Image(width, height, 4,
+            Image((uint16_t)width, (uint16_t)height, 4,
                   std::vector<unsigned char>{data, data + width * height * 4});
         stbi_image_free(data);
     }

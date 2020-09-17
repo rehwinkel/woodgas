@@ -42,6 +42,7 @@ Window::Window(int width, int height, std::string title,
         throw std::runtime_error("failed to create window");
     }
     glfwMakeContextCurrent((GLFWwindow *)this->window);
+    glfwSwapInterval(1);
     logger.debug("loading GLAD...");
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -403,7 +404,7 @@ Renderer::Renderer(Window &window, logging::Logger &logger)
     this->quad_shader = QuadShader();
     this->quad_shader.load_uniforms();
     this->upload_transform(render::Transform3D());
-    this->upload_view(0, 0, 0);
+    this->upload_view(0, 0, 0, 1);
 }
 
 void Renderer::clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
@@ -439,8 +440,9 @@ void Renderer::upload_ortho(float left, float right, float bottom, float top,
     this->quad_shader.set_ortho(data);
 }
 
-void Renderer::upload_view(float x, float y, float z) {
-    Transform3D transform = Transform3D().translate(-x, -y, -z);
+void Renderer::upload_view(float x, float y, float z, float scale) {
+    Transform3D transform =
+        Transform3D().translate(-x, -y, -z).scale(scale, scale, scale);
     this->quad_shader.set_view(transform.get_data());
 }
 

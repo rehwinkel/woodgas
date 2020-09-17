@@ -39,12 +39,14 @@ GenerateWorldComponent::GenerateWorldComponent(int seed,
 
 bool GenerateWorldComponent::is_unique() { return true; }
 
-void GenerateWorldComponent::update(core::Interface &interface) {}
+void GenerateWorldComponent::update(core::Interface &interface) {
+    (void)(interface);
+}
 
 void GenerateWorldComponent::init(core::Interface &interface) {
+    (void)(interface);
     tilemap::TilemapComponent &tilemap_comp =
-        (tilemap::TilemapComponent &)this->entity
-            ->get_single_component<tilemap::TilemapComponent>();
+        this->entity->get_single_component<tilemap::TilemapComponent>();
 
     math::SimplexNoise noise(this->seed);
     for (uint32_t i = 0; i < 0x1000; i++) {
@@ -81,7 +83,7 @@ int main() {
     asset::Image &sand = game_assets.load_image("tiles/sand.png");
     asset::Image &redstone = game_assets.load_image("tiles/redstone.png");
     asset::Image &gravel = game_assets.load_image("tiles/gravel.png");
-    asset::Image &player = game_assets.load_image("player.png");
+    // asset::Image &player = game_assets.load_image("player.png");
 
     std::vector<render::TextureRef> blocks = render::Texture::create_atlas(
         {{dirt.get_width(), dirt.get_height(), dirt.get_components(),
@@ -102,9 +104,11 @@ int main() {
           redstone.get_components(), (char *)redstone.get_data()},
          {gravel.get_width(), gravel.get_height(), gravel.get_components(),
           (char *)gravel.get_data()}});
+    /*
     render::Texture player_tex =
         render::Texture(player.get_width(), player.get_height(),
                         player.get_components(), (char *)player.get_data());
+    */
 
     core::Entity camera_entity = game.create_entity();
     camera_entity.add_component(std::make_unique<comps::TransformComponent>());

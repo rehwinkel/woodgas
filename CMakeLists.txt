@@ -21,7 +21,7 @@ add_subdirectory(zlib)
 if (MSVC)
     add_compile_options(/W4)
 else()
-    add_compile_options(-Wall -Wextra -Wconversion)
+    add_compile_options(-Wall -Wextra -Wconversion -Wno-cast-function-type)
 endif()
 
 add_library(woodgas STATIC src/render/glad/glad.c src/render/render.cc src/input/input.cc src/util/timer.cc src/util/logging.cc src/asset/asset.cc src/script/python.cc src/core/core.cc src/util/math.cc FastNoise/FastNoise.cpp)

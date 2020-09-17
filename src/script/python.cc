@@ -21,10 +21,12 @@ PythonComponent::~PythonComponent() {
 }
 
 void PythonComponent::update(core::Interface &interface) {
+    (void)(interface);
     PyObject_Call(this->update_function_obj, PyTuple_New(0), nullptr);
 }
 
 void PythonComponent::init(core::Interface &interface) {
+    (void)(interface);
     PyObject_Call(this->init_function_obj, PyTuple_New(0), nullptr);
 }
 

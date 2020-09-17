@@ -57,15 +57,15 @@ static PyObject *render_upload_transform(PyObject *self, PyObject *args[],
     if (length != 9) {
         return nullptr;
     }
-    float x = (float) PyFloat_AsDouble(args[0]);
-    float y = (float) PyFloat_AsDouble(args[1]);
-    float z = (float) PyFloat_AsDouble(args[2]);
-    float rx = (float) PyFloat_AsDouble(args[3]);
-    float ry = (float) PyFloat_AsDouble(args[4]);
-    float rz = (float) PyFloat_AsDouble(args[5]);
-    float sx = (float) PyFloat_AsDouble(args[6]);
-    float sy = (float) PyFloat_AsDouble(args[7]);
-    float sz = (float) PyFloat_AsDouble(args[8]);
+    float x = (float)PyFloat_AsDouble(args[0]);
+    float y = (float)PyFloat_AsDouble(args[1]);
+    float z = (float)PyFloat_AsDouble(args[2]);
+    float rx = (float)PyFloat_AsDouble(args[3]);
+    float ry = (float)PyFloat_AsDouble(args[4]);
+    float rz = (float)PyFloat_AsDouble(args[5]);
+    float sx = (float)PyFloat_AsDouble(args[6]);
+    float sy = (float)PyFloat_AsDouble(args[7]);
+    float sz = (float)PyFloat_AsDouble(args[8]);
     render::Renderer &renderer = get_renderer(self);
     renderer.upload_transform(render::Transform3D()
                                   .translate(x, y, z)
@@ -81,12 +81,12 @@ static PyObject *render_upload_ortho(PyObject *self, PyObject *args[],
     if (length != 6) {
         return nullptr;
     }
-    float left = (float) PyFloat_AsDouble(args[0]);
-    float right = (float) PyFloat_AsDouble(args[1]);
-    float bottom = (float) PyFloat_AsDouble(args[2]);
-    float top = (float) PyFloat_AsDouble(args[3]);
-    float near = (float) PyFloat_AsDouble(args[4]);
-    float far = (float) PyFloat_AsDouble(args[5]);
+    float left = (float)PyFloat_AsDouble(args[0]);
+    float right = (float)PyFloat_AsDouble(args[1]);
+    float bottom = (float)PyFloat_AsDouble(args[2]);
+    float top = (float)PyFloat_AsDouble(args[3]);
+    float near = (float)PyFloat_AsDouble(args[4]);
+    float far = (float)PyFloat_AsDouble(args[5]);
     render::Renderer &renderer = get_renderer(self);
     renderer.upload_ortho(left, right, bottom, top, near, far);
     Py_RETURN_NONE;
@@ -99,13 +99,19 @@ static PyMethodDef render_methods[] = {
     {"poll_inputs", render_poll_inputs, METH_NOARGS, "Polls all input events."},
     {"is_window_open", render_is_window_open, METH_NOARGS,
      "Checks if the window should stay open."},
-    {"clear", render_clear, METH_NOARGS,
-     "Clears the screen with a color."},
+    {"clear", render_clear, METH_NOARGS, "Clears the screen with a color."},
     {"upload_transform", (PyCFunction)render_upload_transform, METH_FASTCALL,
      "Uploads a model transformation matrix to the shader."},
     {"upload_orthographic", (PyCFunction)render_upload_ortho, METH_FASTCALL,
      "Uploads an orthographic view matrix to the shader."},
     {NULL, NULL, 0, NULL}};
 
-static struct PyModuleDef render_module = {PyModuleDef_HEAD_INIT, "render",
-                                           nullptr, -1, render_methods};
+static struct PyModuleDef render_module = {PyModuleDef_HEAD_INIT,
+                                           "render",
+                                           nullptr,
+                                           -1,
+                                           render_methods,
+                                           nullptr,
+                                           nullptr,
+                                           nullptr,
+                                           nullptr};

@@ -113,5 +113,12 @@ static PyMethodDef logger_methods[] = {
      "Logs all supplied objects to console with DEBUG log level."},
     {NULL, NULL, 0, NULL}};
 
-static struct PyModuleDef logger_module = {PyModuleDef_HEAD_INIT, "logger",
-                                           nullptr, -1, logger_methods};
+static struct PyModuleDef logger_module = {PyModuleDef_HEAD_INIT,
+                                           "logger",
+                                           nullptr,
+                                           -1,
+                                           logger_methods,
+                                           nullptr,
+                                           nullptr,
+                                           nullptr,
+                                           nullptr};

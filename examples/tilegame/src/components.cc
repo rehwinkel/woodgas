@@ -6,9 +6,11 @@ TransformComponent::TransformComponent() : x(0), y(0) {}
 
 TransformComponent::TransformComponent(float x, float y) : x(x), y(y) {}
 
-void TransformComponent::init(core::Interface &interface) {}
+void TransformComponent::init(core::Interface &interface) { (void)(interface); }
 
-void TransformComponent::update(core::Interface &interface) {}
+void TransformComponent::update(core::Interface &interface) {
+    (void)(interface);
+}
 
 bool TransformComponent::is_unique() { return true; }
 

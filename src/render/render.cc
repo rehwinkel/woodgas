@@ -442,7 +442,7 @@ void Renderer::upload_ortho(float left, float right, float bottom, float top,
 
 void Renderer::upload_view(float x, float y, float z, float scale) {
     Transform3D transform =
-        Transform3D().translate(-x, -y, -z).scale(scale, scale, scale);
+        Transform3D().scale(scale, scale, scale).translate(-x, -y, -z);
     this->quad_shader.set_view(transform.get_data());
 }
 

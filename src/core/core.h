@@ -79,10 +79,10 @@ namespace core {
         inline void remove_component();
         template <class t>
         inline bool has_component() noexcept;
-        template <class t>
+        template <class T>
         inline std::vector<std::unique_ptr<core::Component>>& get_component();
-        template <class t>
-        inline Component& get_single_component();
+        template <class T>
+        inline T& get_single_component();
         Entity& get_parent();
         void init(Interface& interface);
         void update(Interface& interface);
@@ -127,20 +127,20 @@ void core::Entity::remove_component() {
     }
 }
 
-template <class t>
+template <class T>
 std::vector<std::unique_ptr<core::Component>>& core::Entity::get_component() {
-    if (this->has_component<t>()) {
-        return this->components.at(typeid(t).hash_code());
+    if (this->has_component<T>()) {
+        return this->components.at(typeid(T).hash_code());
     } else {
         throw std::runtime_error("Tried to get " +
-                                 std::string(typeid(t).name()) +
+                                 std::string(typeid(T).name()) +
                                  ", but it doesn't exist!");
     }
 }
 
-template <class t>
-inline core::Component& core::Entity::get_single_component() {
+template <class T>
+inline T& core::Entity::get_single_component() {
     std::vector<std::unique_ptr<core::Component>>& components =
-        this->get_component<t>();
-    return *components.at(0);
+        this->get_component<T>();
+    return (T&)*components.at(0);
 }

@@ -10,6 +10,9 @@
 extern "C" const char assets[];
 extern "C" const size_t assets_len;
 
+namespace comps = components;
+namespace tilemap = comps::tilemap;
+
 class GenerateWorldComponent : public core::Component {
    private:
     int seed;
@@ -104,8 +107,9 @@ int main() {
                         player.get_components(), (char *)player.get_data());
 
     core::Entity camera_entity = game.create_entity();
+    camera_entity.add_component(std::make_unique<comps::TransformComponent>());
     camera_entity.add_component(
-        std::make_unique<CameraComponent>(1280.0f / 720.0f, 32.0f));
+        std::make_unique<comps::CameraComponent>(1280.0f / 720.0f, 32.0f));
     size_t camera_id = camera_entity.get_id();
     game.add_entity(std::move(camera_entity));
 
@@ -131,12 +135,17 @@ int main() {
     size_t frame_count = 0;
     double last_fps_time = 0.0;
     game.init(interface);
+    comps::TransformComponent &camera_tf =
+        game.get_entity(camera_id)
+            .get_single_component<comps::TransformComponent>();
+
     while (window.is_open()) {
         window.poll_inputs();
 
         renderer.clear();
 
         game.update(interface);
+        camera_tf.move(10 * (float)time.delta_time(), 0);
         frame_time_sum += (float)time.delta_time();
 
         time._frame_complete();

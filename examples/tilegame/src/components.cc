@@ -1,5 +1,47 @@
 #include "components.h"
 
+using namespace components;
+
+TransformComponent::TransformComponent() : x(0), y(0) {}
+
+TransformComponent::TransformComponent(float x, float y) : x(x), y(y) {}
+
+void TransformComponent::init(core::Interface &interface) {}
+
+void TransformComponent::update(core::Interface &interface) {}
+
+bool TransformComponent::is_unique() { return true; }
+
+float TransformComponent::get_x() { return this->x; }
+
+float TransformComponent::get_y() { return this->y; }
+
+void TransformComponent::move(float x, float y) {
+    this->x += x;
+    this->y += y;
+}
+
+bool CameraComponent::is_unique() { return true; }
+
+CameraComponent::CameraComponent(float aspect_ratio, float scale)
+    : aspect_ratio(aspect_ratio), scale(scale) {}
+
+void CameraComponent::init(core::Interface &interface) {
+    this->transform = &this->entity->get_single_component<TransformComponent>();
+    interface.get_renderer().upload_ortho(
+        -1 * this->aspect_ratio, 1 * this->aspect_ratio, -1, 1, 0.1f, 100);
+}
+
+void CameraComponent::update(core::Interface &interface) {
+    float x = this->transform->get_x();
+    float y = this->transform->get_y();
+    interface.get_renderer().upload_view(x, y, 0, 1.0f / this->scale);
+}
+
+float CameraComponent::get_aspect_ratio() { return this->aspect_ratio; }
+
+float CameraComponent::get_scale() { return this->scale; }
+
 using namespace tilemap;
 
 Tile::Tile(render::TextureRef texture) : texture(texture) {}
@@ -55,11 +97,15 @@ TilemapComponent::TilemapComponent(uint16_t chunk_size, float render_tile_size,
 
 bool TilemapComponent::is_unique() { return true; }
 
-void TilemapComponent::init(core::Interface &interface) {}
+void TilemapComponent::init(core::Interface &interface) {
+    core::Entity &camera_entity =
+        interface.get_game().get_entity(this->camera_id);
+    this->cam_transform =
+        &camera_entity.get_single_component<TransformComponent>();
+    this->camera = &camera_entity.get_single_component<CameraComponent>();
+}
 
-bool TilemapComponent::should_chunk_render(ChunkPos pos, core::Game &game,
-                                           logging::Logger &logger) {
-    CameraComponent &camera = this->get_camera(game);
+bool TilemapComponent::should_chunk_render(ChunkPos pos) {
     float minx =
         this->render_tile_size * (float)this->chunk_size * (float)pos.x;
     float miny =
@@ -68,10 +114,10 @@ bool TilemapComponent::should_chunk_render(ChunkPos pos, core::Game &game,
         this->render_tile_size * (float)this->chunk_size * (float)(pos.x + 1);
     float maxy =
         this->render_tile_size * (float)this->chunk_size * (float)(pos.y + 1);
-    float camx = 0;  // TODO: camera.get_x();
-    float camy = 0;  // TODO: camera.get_y();
-    float sc = camera.get_scale();
-    float ar = camera.get_aspect_ratio() * sc;
+    float camx = this->cam_transform->get_x();
+    float camy = this->cam_transform->get_y();
+    float sc = this->camera->get_scale();
+    float ar = this->camera->get_aspect_ratio() * sc;
     /*
     logger.debug_stream() << "minx: " << minx << ", "
                           << "miny: " << miny << ", "
@@ -88,9 +134,7 @@ void TilemapComponent::update(core::Interface &interface) {
     render::Renderer &renderer = interface.get_renderer();
     // size_t chunk_draw_count = 0;
     for (auto &chunk_pair : this->chunks) {
-        if (this->should_chunk_render(ChunkPos(chunk_pair.first),
-                                      interface.get_game(),
-                                      interface.get_logger())) {
+        if (this->should_chunk_render(ChunkPos(chunk_pair.first))) {
             chunk_pair.second.render(*this, renderer, this->render_tile_size);
             // chunk_draw_count++;
         }
@@ -138,10 +182,4 @@ void TilemapComponent::set_tile(uint32_t x, uint32_t y, Tile &tile) {
     TilemapChunk &chunk = this->chunks.at(chunk_pos.as_long());
     chunk.set_tile(((uint16_t)x) % this->chunk_size,
                    ((uint16_t)y) % this->chunk_size, tile_id);
-}
-
-CameraComponent &TilemapComponent::get_camera(core::Game &game) {
-    core::Entity &camera_entity = game.get_entity(this->camera_id);
-    return (CameraComponent &)
-        camera_entity.get_single_component<CameraComponent>();
 }

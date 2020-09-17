@@ -125,6 +125,7 @@ int main() {
 
     core::Interface interface(logger, renderer, time, game);
 
+    float frame_time_sum = 0;
     size_t frame_count = 0;
     double last_fps_time = 0.0;
     game.init(interface);
@@ -138,14 +139,17 @@ int main() {
         ((CameraComponent &)game.get_entity(camera_id)
              .get_single_component<CameraComponent>())
             .move(0.5f * (float)time.delta_time(), 0);
+        frame_time_sum += (float)time.delta_time();
 
         time._frame_complete();
         window.swap_buffers();
         frame_count++;
         if (time.current() - last_fps_time > 1.0) {
             logger.debug_stream()
-                << "FPS: " << frame_count << logging::COLOR_RS << std::endl;
+                << "FPS: " << frame_count << ", Time: " << frame_time_sum
+                << logging::COLOR_RS << std::endl;
             frame_count = 0;
+            frame_time_sum = 0;
             last_fps_time = time.current();
         }
     }
